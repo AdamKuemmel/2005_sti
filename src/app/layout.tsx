@@ -2,6 +2,7 @@ import "~/styles/globals.css";
 
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -19,14 +20,14 @@ function TopNav() {
     <nav className="w-full bg-gray-800 p-4 text-white">
       <ul className="flex space-x-4">
         <li>
-          <a href="/" className="hover:underline">
+          <Link href="/" className="hover:underline">
             Home
-          </a>
+          </Link>
         </li>
         <li>
-          <a href="/service" className="hover:underline">
+          <Link href="/service" className="hover:underline">
             Service
-          </a>
+          </Link>
         </li>
       </ul>
     </nav>
