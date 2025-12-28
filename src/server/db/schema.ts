@@ -31,6 +31,158 @@ export const posts = createTable(
   ],
 );
 
+// Vehicle information - tracks current state
+export const vehicle = createTable("vehicle", (d) => ({
+  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+
+  // Basic info
+  year: d.integer().notNull(),
+  make: d.varchar({ length: 100 }).notNull(),
+  model: d.varchar({ length: 100 }).notNull(),
+
+  // Current state
+  currentMileage: d.integer().notNull(),
+  lastMileageUpdate: d.timestamp({ withTimezone: true }).notNull(),
+
+  // Ownership
+  ownerId: d
+    .varchar({ length: 255 })
+    .notNull()
+    .references(() => users.id),
+
+  // Metadata
+  createdAt: d
+    .timestamp({ withTimezone: true })
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
+}));
+
+// Main service record table - tracks what's been done
+export const serviceRecords = createTable(
+  "service_record",
+  (d) => ({
+    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+
+    vehicleId: d
+      .integer()
+      .notNull()
+      .references(() => vehicle.id),
+
+    // Basic info
+    title: d.varchar({ length: 255 }).notNull(),
+    category: d.varchar({ length: 50 }).notNull(), // 'fluid', 'engine_drivetrain', 'consumable', 'inspection', 'other'
+
+    // When and where
+    serviceDate: d.date().notNull(),
+    mileage: d.integer().notNull(),
+    location: d.varchar({ length: 255 }),
+
+    // Details
+    description: d.text(),
+    partsBrand: d.varchar({ length: 255 }),
+    partNumber: d.varchar({ length: 255 }),
+
+    // Cost tracking
+    laborCost: d.numeric({ precision: 10, scale: 2 }),
+    partsCost: d.numeric({ precision: 10, scale: 2 }),
+    totalCost: d.numeric({ precision: 10, scale: 2 }),
+
+    // Documentation
+    notes: d.text(),
+
+    // Metadata
+    createdById: d
+      .varchar({ length: 255 })
+      .notNull()
+      .references(() => users.id),
+    createdAt: d
+      .timestamp({ withTimezone: true })
+      .$defaultFn(() => new Date())
+      .notNull(),
+    updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
+  }),
+  (t) => [
+    index("vehicle_idx").on(t.vehicleId),
+    index("service_date_idx").on(t.serviceDate),
+    index("category_idx").on(t.category),
+    index("mileage_idx").on(t.mileage),
+  ],
+);
+
+// Maintenance schedule - tracks when things are DUE
+export const maintenanceSchedule = createTable(
+  "maintenance_schedule",
+  (d) => ({
+    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+
+    vehicleId: d
+      .integer()
+      .notNull()
+      .references(() => vehicle.id),
+
+    // What needs to be done
+    title: d.varchar({ length: 255 }).notNull(),
+    category: d.varchar({ length: 50 }).notNull(),
+    description: d.text(),
+
+    // Service intervals (at least one must be set)
+    intervalMiles: d.integer(), // e.g., 3000 for oil changes
+    intervalMonths: d.integer(), // e.g., 6 for oil changes
+
+    // Last service tracking
+    lastServicedDate: d.date(),
+    lastServicedMileage: d.integer(),
+    lastServiceRecordId: d.integer().references(() => serviceRecords.id),
+
+    // Next due (computed when last service is updated)
+    nextDueDate: d.date(),
+    nextDueMileage: d.integer(),
+
+    // Status
+    isActive: d.boolean().notNull().default(true),
+
+    // Metadata
+    createdById: d
+      .varchar({ length: 255 })
+      .notNull()
+      .references(() => users.id),
+    createdAt: d
+      .timestamp({ withTimezone: true })
+      .$defaultFn(() => new Date())
+      .notNull(),
+    updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
+  }),
+  (t) => [
+    index("vehicle_schedule_idx").on(t.vehicleId),
+    index("next_due_date_idx").on(t.nextDueDate),
+    index("next_due_mileage_idx").on(t.nextDueMileage),
+    index("is_active_idx").on(t.isActive),
+  ],
+);
+
+// Photos and documents
+export const serviceDocuments = createTable(
+  "service_document",
+  (d) => ({
+    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+    serviceRecordId: d
+      .integer()
+      .notNull()
+      .references(() => serviceRecords.id, { onDelete: "cascade" }),
+
+    fileUrl: d.varchar({ length: 500 }).notNull(),
+    fileType: d.varchar({ length: 50 }).notNull(), // 'photo', 'receipt', 'invoice', 'manual'
+    description: d.varchar({ length: 255 }),
+
+    createdAt: d
+      .timestamp({ withTimezone: true })
+      .$defaultFn(() => new Date())
+      .notNull(),
+  }),
+  (t) => [index("service_record_idx").on(t.serviceRecordId)],
+);
+
 export const users = createTable("user", (d) => ({
   id: d
     .varchar({ length: 255 })
@@ -50,6 +202,7 @@ export const users = createTable("user", (d) => ({
 
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
+  vehicles: many(vehicle),
 }));
 
 export const accounts = createTable(
@@ -105,4 +258,57 @@ export const verificationTokens = createTable(
     expires: d.timestamp({ mode: "date", withTimezone: true }).notNull(),
   }),
   (t) => [primaryKey({ columns: [t.identifier, t.token] })],
+);
+
+// Vehicle relations
+export const vehicleRelations = relations(vehicle, ({ one, many }) => ({
+  owner: one(users, { fields: [vehicle.ownerId], references: [users.id] }),
+  serviceRecords: many(serviceRecords),
+  maintenanceSchedule: many(maintenanceSchedule),
+}));
+
+// Service record relations
+export const serviceRecordsRelations = relations(
+  serviceRecords,
+  ({ one, many }) => ({
+    vehicle: one(vehicle, {
+      fields: [serviceRecords.vehicleId],
+      references: [vehicle.id],
+    }),
+    createdBy: one(users, {
+      fields: [serviceRecords.createdById],
+      references: [users.id],
+    }),
+    documents: many(serviceDocuments),
+  }),
+);
+
+// Maintenance schedule relations
+export const maintenanceScheduleRelations = relations(
+  maintenanceSchedule,
+  ({ one }) => ({
+    vehicle: one(vehicle, {
+      fields: [maintenanceSchedule.vehicleId],
+      references: [vehicle.id],
+    }),
+    createdBy: one(users, {
+      fields: [maintenanceSchedule.createdById],
+      references: [users.id],
+    }),
+    lastServiceRecord: one(serviceRecords, {
+      fields: [maintenanceSchedule.lastServiceRecordId],
+      references: [serviceRecords.id],
+    }),
+  }),
+);
+
+// Service document relations
+export const serviceDocumentsRelations = relations(
+  serviceDocuments,
+  ({ one }) => ({
+    serviceRecord: one(serviceRecords, {
+      fields: [serviceDocuments.serviceRecordId],
+      references: [serviceRecords.id],
+    }),
+  }),
 );

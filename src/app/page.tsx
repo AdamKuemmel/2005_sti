@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { db } from "~/server/db";
+export const dynamic = "force-dynamic";
 const mockUrl =
   "https://2phtlup0un.ufs.sh/f/v3cRVdYWPt5c9ySvF46q3SoczUCJgYjp0H8kDhGL1uZ2a5Xs";
 export default async function HomePage() {
