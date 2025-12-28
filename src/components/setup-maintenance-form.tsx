@@ -1,10 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import {
-  STI_MAINTENANCE_ITEMS,
-  saveMaintenanceSchedule,
-} from "~/server/actions/seed-maintenance";
+import { STI_MAINTENANCE_ITEMS } from "~/lib/maintenance-schedule-contants";
+import { saveMaintenanceSchedule } from "~/server/actions/seed-maintenance";
 
 interface Vehicle {
   id: number;

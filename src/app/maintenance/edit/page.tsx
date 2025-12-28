@@ -6,20 +6,21 @@ import { maintenanceSchedule } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 import { EditMaintenanceForm } from "~/components/edit-maintenance-form";
 
-export default async function EditMaintenancePage({
-  searchParams,
-}: {
-  searchParams: { vehicleId?: string };
-}) {
+interface PageProps {
+  searchParams: Promise<{
+    vehicleId?: string;
+  }>;
+}
+
+export default async function EditMaintenancePage({ searchParams }: PageProps) {
   const session = await auth();
 
   if (!session) {
     redirect("/");
   }
 
-  const vehicleId = searchParams.vehicleId
-    ? parseInt(searchParams.vehicleId)
-    : undefined;
+  const params = await searchParams;
+  const vehicleId = params.vehicleId ? parseInt(params.vehicleId) : undefined;
   const vehicle = await getVehicle(vehicleId);
 
   if (!vehicle) {

@@ -4,27 +4,29 @@ import {
   getServiceRecords,
   getUpcomingMaintenance,
 } from "~/server/actions/service-records";
-
+import { ServiceRecordsList } from "~/components/service-records-list";
 import { HistoryHeader } from "~/components/history-header";
 import { UpcomingMaintenanceTable } from "~/components/upcoming-maintenance-table";
 import Link from "next/link";
-import { ServiceRecordsList } from "~/components/service-records-list";
 
-export default async function HistoryPage({
-  searchParams,
-}: {
-  searchParams: { category?: string; search?: string; vehicleId?: string };
-}) {
+interface PageProps {
+  searchParams: Promise<{
+    category?: string;
+    search?: string;
+    vehicleId?: string;
+  }>;
+}
+
+export default async function HistoryPage({ searchParams }: PageProps) {
   const session = await auth();
+  const params = await searchParams;
 
   // Get the selected vehicle ID from URL or default to first vehicle
-  const vehicleId = searchParams.vehicleId
-    ? parseInt(searchParams.vehicleId)
-    : undefined;
+  const vehicleId = params.vehicleId ? parseInt(params.vehicleId) : undefined;
 
   const vehicle = await getVehicle(vehicleId);
   const records = vehicle
-    ? await getServiceRecords(vehicle.id, searchParams.category)
+    ? await getServiceRecords(vehicle.id, params.category)
     : [];
   const upcomingMaintenance = vehicle
     ? await getUpcomingMaintenance(vehicle.id)
@@ -71,7 +73,7 @@ export default async function HistoryPage({
         <h2 className="mb-4 text-2xl font-bold">Service History</h2>
         <ServiceRecordsList
           records={records}
-          currentCategory={searchParams.category ?? "all"}
+          currentCategory={params.category ?? "all"}
           isLoggedIn={!!session}
         />
       </div>
