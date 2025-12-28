@@ -102,7 +102,7 @@ export function SetupMaintenanceForm({ vehicle }: SetupMaintenanceFormProps) {
                   <h3 className="text-lg font-semibold">{item.title}</h3>
                   <span
                     className={`rounded-full px-2 py-1 text-xs font-semibold ${
-                      categoryColors[item.category] ||
+                      categoryColors[item.category] ??
                       "bg-gray-100 text-gray-800"
                     }`}
                   >

@@ -6,7 +6,7 @@ import {
   vehicle,
   maintenanceSchedule,
 } from "~/server/db/schema";
-import { eq, desc, and, or, lte, gte } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 
 // Get a specific vehicle by ID, or get the first vehicle if no ID provided
 export async function getVehicle(vehicleId?: number) {
@@ -113,8 +113,6 @@ export async function getUpcomingMaintenance(vehicleId: number) {
 
 // Get service records, optionally filtered by vehicle and/or category
 export async function getServiceRecords(vehicleId?: number, category?: string) {
-  let baseQuery = db.select().from(serviceRecords);
-
   // Build conditions array
   const conditions = [];
 
@@ -127,38 +125,32 @@ export async function getServiceRecords(vehicleId?: number, category?: string) {
   }
 
   // Apply filters if any exist
-  if (conditions.length > 0) {
-    // For a single condition
-    if (conditions.length === 1) {
-      return await db
-        .select()
-        .from(serviceRecords)
-        .where(conditions[0])
-        .orderBy(desc(serviceRecords.serviceDate));
-    }
-    // For multiple conditions, we'd need to use `and()` - but for now we handle them separately
-    // Since we're checking vehicleId first, then category
-    let query = db.select().from(serviceRecords);
-
-    if (vehicleId) {
-      query = query.where(eq(serviceRecords.vehicleId, vehicleId)) as any;
-    }
-
-    if (category && category !== "all") {
-      query = query.where(eq(serviceRecords.category, category)) as any;
-    }
-
-    return await (query as any).orderBy(desc(serviceRecords.serviceDate));
+  if (conditions.length === 0) {
+    // No filters - return all records
+    return await db
+      .select()
+      .from(serviceRecords)
+      .orderBy(desc(serviceRecords.serviceDate));
   }
 
-  // No filters - return all records
+  if (conditions.length === 1) {
+    // Single condition
+    return await db
+      .select()
+      .from(serviceRecords)
+      .where(conditions[0])
+      .orderBy(desc(serviceRecords.serviceDate));
+  }
+
+  // Multiple conditions - use and()
   return await db
     .select()
     .from(serviceRecords)
+    .where(and(...conditions))
     .orderBy(desc(serviceRecords.serviceDate));
 }
 
-export async function searchServiceRecords(searchTerm: string) {
+export async function searchServiceRecords(_searchTerm: string) {
   // We'll implement this after we get the basic page working
   return [];
 }

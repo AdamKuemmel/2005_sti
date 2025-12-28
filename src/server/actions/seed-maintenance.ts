@@ -59,6 +59,16 @@ export async function seedMaintenanceSchedule(vehicleId: number) {
   return { success: true, count: items.length };
 }
 
+// Type for maintenance items coming from the form
+interface MaintenanceItemInput {
+  id?: number;
+  title: string;
+  category: string;
+  description: string;
+  intervalMiles: number | null;
+  intervalMonths: number | null;
+}
+
 export async function saveMaintenanceSchedule(formData: FormData) {
   const session = await auth();
 
@@ -68,7 +78,7 @@ export async function saveMaintenanceSchedule(formData: FormData) {
 
   const vehicleId = parseInt(formData.get("vehicleId") as string);
   const itemsJson = formData.get("items") as string;
-  const items = JSON.parse(itemsJson);
+  const items = JSON.parse(itemsJson) as MaintenanceItemInput[];
 
   // Get current vehicle to calculate initial due dates
   const [currentVehicle] = await db
@@ -84,9 +94,9 @@ export async function saveMaintenanceSchedule(formData: FormData) {
   const currentMileage = currentVehicle.currentMileage;
 
   // Insert all customized maintenance items with calculated due dates
-  const scheduleItems = items.map((item: any) => {
-    let nextDueMileage = null;
-    let nextDueDate = null;
+  const scheduleItems = items.map((item) => {
+    let nextDueMileage: number | null = null;
+    let nextDueDate: string | null = null;
 
     // Calculate next due mileage
     if (item.intervalMiles) {
@@ -97,7 +107,7 @@ export async function saveMaintenanceSchedule(formData: FormData) {
     if (item.intervalMonths) {
       const dueDate = new Date(currentDate);
       dueDate.setMonth(dueDate.getMonth() + item.intervalMonths);
-      nextDueDate = dueDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+      nextDueDate = dueDate.toISOString().split("T")[0] ?? null; // Format as YYYY-MM-DD
     }
 
     return {
@@ -127,9 +137,8 @@ export async function updateMaintenanceSchedule(formData: FormData) {
     throw new Error("Unauthorized");
   }
 
-  const vehicleId = parseInt(formData.get("vehicleId") as string);
   const itemsJson = formData.get("items") as string;
-  const items = JSON.parse(itemsJson);
+  const items = JSON.parse(itemsJson) as MaintenanceItemInput[];
 
   // Update each maintenance item
   for (const item of items) {

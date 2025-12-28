@@ -47,8 +47,8 @@ export function ServiceRecordsList({
 
   const filteredRecords = records.filter(
     (record) =>
-      record.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      record.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      record.title.toLowerCase().includes(searchTerm.toLowerCase()) ??
+      record.description?.toLowerCase().includes(searchTerm.toLowerCase()) ??
       record.partsBrand?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
@@ -184,7 +184,7 @@ function ServiceRecordCard({
               {record.partNumber}
             </div>
           )}
-          {(record.laborCost || record.partsCost) && (
+          {(record.laborCost ?? record.partsCost) && (
             <div className="mt-3 border-t border-gray-200 pt-3">
               <div className="font-semibold">Cost Breakdown:</div>
               {record.partsCost && (

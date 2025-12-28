@@ -55,7 +55,7 @@ export function EditMaintenanceForm({
           id: item.id,
           title: item.title,
           category: item.category,
-          description: item.description || "",
+          description: item.description ?? "",
           intervalMiles: item.intervalMiles,
           intervalMonths: item.intervalMonths,
         }))
@@ -142,7 +142,7 @@ export function EditMaintenanceForm({
                   <h3 className="text-lg font-semibold">{item.title}</h3>
                   <span
                     className={`rounded-full px-2 py-1 text-xs font-semibold ${
-                      categoryColors[item.category] ||
+                      categoryColors[item.category] ??
                       "bg-gray-100 text-gray-800"
                     }`}
                   >

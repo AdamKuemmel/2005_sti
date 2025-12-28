@@ -22,12 +22,11 @@ interface UpcomingMaintenanceItem {
 
 interface UpcomingMaintenanceTableProps {
   items: UpcomingMaintenanceItem[];
-  currentMileage: number;
+  currentMileage?: number;
 }
 
 export function UpcomingMaintenanceTable({
   items,
-  currentMileage,
 }: UpcomingMaintenanceTableProps) {
   if (items.length === 0) {
     return (

@@ -24,12 +24,12 @@ export async function addServiceRecord(formData: FormData) {
   const serviceDate = formData.get("serviceDate") as string;
   const mileage = parseInt(formData.get("mileage") as string);
   const location = formData.get("location") as string;
-  const description = (formData.get("description") as string) || null;
-  const partsBrand = (formData.get("partsBrand") as string) || null;
-  const partNumber = (formData.get("partNumber") as string) || null;
-  const laborCost = (formData.get("laborCost") as string) || null;
-  const partsCost = (formData.get("partsCost") as string) || null;
-  const notes = (formData.get("notes") as string) || null;
+  const description = (formData.get("description") as string) ?? null;
+  const partsBrand = (formData.get("partsBrand") as string) ?? null;
+  const partNumber = (formData.get("partNumber") as string) ?? null;
+  const laborCost = (formData.get("laborCost") as string) ?? null;
+  const partsCost = (formData.get("partsCost") as string) ?? null;
+  const notes = (formData.get("notes") as string) ?? null;
 
   // Calculate total cost
   const labor = laborCost ? parseFloat(laborCost) : 0;
@@ -45,12 +45,12 @@ export async function addServiceRecord(formData: FormData) {
       category,
       serviceDate,
       mileage,
-      location: location || null,
+      location: location ?? null,
       description,
       partsBrand,
       partNumber,
-      laborCost: laborCost || null,
-      partsCost: partsCost || null,
+      laborCost: laborCost ?? null,
+      partsCost: partsCost ?? null,
       totalCost: totalCost > 0 ? totalCost.toString() : null,
       notes,
       createdById: session.user.id,
