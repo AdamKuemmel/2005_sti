@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { STI_MAINTENANCE_ITEMS } from "~/lib/maintenance-schedule-contants";
-import { saveMaintenanceSchedule } from "~/server/actions/seed-maintenance";
+import { saveMaintenanceSchedule } from "~/server/actions/maintenance";
 
 interface Vehicle {
   id: number;

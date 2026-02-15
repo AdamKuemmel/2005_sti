@@ -32,18 +32,6 @@ export const authConfig = {
     verificationTokensTable: verificationTokens,
   }),
   callbacks: {
-    signIn: async ({ user }) => {
-      // Only allow the admin user to sign in
-      const adminUserId = process.env.ADMIN_USER_ID;
-
-      if (!adminUserId) {
-        console.error("ADMIN_USER_ID not set in environment variables");
-        return false;
-      }
-
-      // Allow sign in only if user ID matches admin
-      return user.id === adminUserId;
-    },
     session: ({ session, user }) => ({
       ...session,
       user: {

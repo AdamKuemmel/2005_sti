@@ -41,96 +41,11 @@ export function TopNav({
               </Link>
             </li>
             <li>
-              <Link href="/history" className="hover:underline">
-                History
+              <Link href="/vehicle" className="hover:underline">
+                Vehicles
               </Link>
             </li>
           </ul>
-
-          {/* Vehicle Selector - Visible to everyone if there are vehicles */}
-          {vehicles.length > 0 && (
-            <div className="relative">
-              <button
-                onClick={() => setIsVehicleMenuOpen(!isVehicleMenuOpen)}
-                className="flex items-center gap-2 rounded bg-gray-700 px-3 py-2 hover:bg-gray-600"
-              >
-                <svg
-                  className="h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-                <span>
-                  {currentVehicle
-                    ? `${currentVehicle.year} ${currentVehicle.make} ${currentVehicle.model}`
-                    : vehicles.length === 1
-                      ? `${vehicles[0]!.year} ${vehicles[0]!.make} ${vehicles[0]!.model}`
-                      : "Select Vehicle"}
-                </span>
-              </button>
-
-              {isVehicleMenuOpen && (
-                <>
-                  {/* Backdrop to close menu when clicking outside */}
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setIsVehicleMenuOpen(false)}
-                  />
-                  <div className="absolute left-0 z-20 mt-2 w-64 rounded-md bg-white shadow-lg">
-                    <div className="py-1">
-                      {vehicles.map((vehicle) => (
-                        <div key={vehicle.id}>
-                          <Link
-                            href={`/history?vehicleId=${vehicle.id}`}
-                            onClick={() => setIsVehicleMenuOpen(false)}
-                            className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${
-                              vehicle.id === currentVehicleId
-                                ? "bg-gray-100 font-semibold"
-                                : ""
-                            }`}
-                          >
-                            {vehicle.year} {vehicle.make} {vehicle.model}
-                            <div className="text-xs text-gray-500">
-                              {vehicle.currentMileage.toLocaleString()} miles
-                            </div>
-                          </Link>
-                          {session && (
-                            <Link
-                              href={`/maintenance/edit?vehicleId=${vehicle.id}`}
-                              onClick={() => setIsVehicleMenuOpen(false)}
-                              className="block px-4 py-1.5 text-xs text-blue-600 hover:bg-gray-50"
-                            >
-                              ⚙️ Edit Maintenance Schedule
-                            </Link>
-                          )}
-                        </div>
-                      ))}
-
-                      {/* Only show Add Vehicle option when logged in */}
-                      {session && (
-                        <div className="border-t border-gray-200">
-                          <Link
-                            href="/vehicle/add"
-                            onClick={() => setIsVehicleMenuOpen(false)}
-                            className="block px-4 py-2 text-sm text-blue-600 hover:bg-gray-100"
-                          >
-                            + Add New Vehicle
-                          </Link>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
         </div>
 
         <div>

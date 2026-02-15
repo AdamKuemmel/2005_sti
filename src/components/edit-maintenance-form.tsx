@@ -5,7 +5,7 @@ import { STI_MAINTENANCE_ITEMS } from "~/lib/maintenance-schedule-contants";
 import {
   saveMaintenanceSchedule,
   updateMaintenanceSchedule,
-} from "~/server/actions/seed-maintenance";
+} from "~/server/actions/maintenance";
 
 interface Vehicle {
   id: number;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { addServiceRecord } from "~/server/actions/add-service-record";
+import { addServiceRecord } from "~/server/actions/service-records";
 
 interface Vehicle {
   id: number;

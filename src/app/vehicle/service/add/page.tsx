@@ -1,6 +1,6 @@
 import { auth } from "~/server/auth";
 import { redirect } from "next/navigation";
-import { getVehicle } from "~/server/actions/service-records";
+import { getVehicle } from "~/server/actions/vehicles";
 import { AddServiceForm } from "~/components/add-service-form";
 
 export default async function AddServicePage() {

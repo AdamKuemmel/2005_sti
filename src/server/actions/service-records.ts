@@ -9,7 +9,7 @@ import {
 import { auth } from "~/server/auth";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc, inArray } from "drizzle-orm";
 
 export async function addServiceRecord(formData: FormData) {
   const session = await auth();
@@ -19,6 +19,17 @@ export async function addServiceRecord(formData: FormData) {
   }
 
   const vehicleId = parseInt(formData.get("vehicleId") as string);
+
+  // Verify vehicle belongs to session user
+  const [ownedVehicle] = await db
+    .select()
+    .from(vehicle)
+    .where(and(eq(vehicle.id, vehicleId), eq(vehicle.ownerId, session.user.id)));
+
+  if (!ownedVehicle) {
+    throw new Error("Unauthorized");
+  }
+
   const title = formData.get("title") as string;
   const category = formData.get("category") as string;
   const serviceDate = formData.get("serviceDate") as string;
@@ -31,12 +42,10 @@ export async function addServiceRecord(formData: FormData) {
   const partsCost = (formData.get("partsCost") as string) ?? null;
   const notes = (formData.get("notes") as string) ?? null;
 
-  // Calculate total cost
   const labor = laborCost ? parseFloat(laborCost) : 0;
   const parts = partsCost ? parseFloat(partsCost) : 0;
   const totalCost = labor + parts;
 
-  // Insert the service record
   const [record] = await db
     .insert(serviceRecords)
     .values({
@@ -62,13 +71,11 @@ export async function addServiceRecord(formData: FormData) {
     .select()
     .from(vehicle)
     .where(eq(vehicle.id, vehicleId));
+
   if (currentVehicle && mileage > currentVehicle.currentMileage) {
     await db
       .update(vehicle)
-      .set({
-        currentMileage: mileage,
-        lastMileageUpdate: new Date(),
-      })
+      .set({ currentMileage: mileage, lastMileageUpdate: new Date() })
       .where(eq(vehicle.id, vehicleId));
   }
 
@@ -88,7 +95,6 @@ export async function addServiceRecord(formData: FormData) {
     if (matchingScheduleItems.length > 0) {
       const scheduleItem = matchingScheduleItems[0]!;
 
-      // Calculate next due dates based on the service just performed
       let nextDueMileage = null;
       let nextDueDate = null;
 
@@ -104,7 +110,6 @@ export async function addServiceRecord(formData: FormData) {
         nextDueDate = serviceDateObj.toISOString().split("T")[0];
       }
 
-      // Update the maintenance schedule item
       await db
         .update(maintenanceSchedule)
         .set({
@@ -120,4 +125,47 @@ export async function addServiceRecord(formData: FormData) {
 
   revalidatePath("/history");
   redirect("/history");
+}
+
+export async function getServiceRecords(vehicleId?: number, category?: string) {
+  // Specific vehicle ID: public, anyone can view
+  if (vehicleId) {
+    const conditions = [eq(serviceRecords.vehicleId, vehicleId)];
+
+    if (category && category !== "all") {
+      conditions.push(eq(serviceRecords.category, category));
+    }
+
+    return await db
+      .select()
+      .from(serviceRecords)
+      .where(and(...conditions))
+      .orderBy(desc(serviceRecords.serviceDate));
+  }
+
+  // No vehicle ID: scope to current user's vehicles
+  const session = await auth();
+  if (!session?.user?.id) return [];
+
+  const ownedVehicleIds = db
+    .select({ id: vehicle.id })
+    .from(vehicle)
+    .where(eq(vehicle.ownerId, session.user.id));
+
+  const conditions = [inArray(serviceRecords.vehicleId, ownedVehicleIds)];
+
+  if (category && category !== "all") {
+    conditions.push(eq(serviceRecords.category, category));
+  }
+
+  return await db
+    .select()
+    .from(serviceRecords)
+    .where(and(...conditions))
+    .orderBy(desc(serviceRecords.serviceDate));
+}
+
+export async function searchServiceRecords(_searchTerm: string) {
+  // TODO: implement full-text search
+  return [];
 }

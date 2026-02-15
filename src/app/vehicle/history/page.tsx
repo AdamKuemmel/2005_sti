@@ -1,9 +1,7 @@
 import { auth } from "~/server/auth";
-import {
-  getVehicle,
-  getServiceRecords,
-  getUpcomingMaintenance,
-} from "~/server/actions/service-records";
+import { getVehicle } from "~/server/actions/vehicles";
+import { getServiceRecords } from "~/server/actions/service-records";
+import { getUpcomingMaintenance } from "~/server/actions/maintenance";
 import { ServiceRecordsList } from "~/components/service-records-list";
 import { HistoryHeader } from "~/components/history-header";
 import { UpcomingMaintenanceTable } from "~/components/upcoming-maintenance-table";
