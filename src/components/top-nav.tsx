@@ -98,7 +98,7 @@ export function TopNav(_props: TopNavProps) {
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="h-9 w-9 rounded-full p-0"
+                    className="my-auto h-9 w-9 rounded-full p-0"
                     aria-label="User menu"
                   >
                     <Avatar className="h-9 w-9">
@@ -160,7 +160,7 @@ export function TopNav(_props: TopNavProps) {
                 <SheetHeader>
                   <SheetTitle className="flex items-center gap-2">
                     <Gauge className="text-primary size-5" />
-                    2005 STI
+                    Interval
                   </SheetTitle>
                 </SheetHeader>
 

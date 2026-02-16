@@ -11,7 +11,7 @@ import { extractRouterConfig } from "uploadthing/server";
 import { ourFileRouter } from "~/app/api/uploadthing/core";
 
 export const metadata: Metadata = {
-  title: "2005 STI Tracker",
+  title: "Interval - Vehicle Maintenance Tracking",
   description: "Vehicle maintenance tracking",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
@@ -27,7 +27,12 @@ export default async function RootLayout({
   return (
     <html lang="en" className={`${geist.variable}`} suppressHydrationWarning>
       <body>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem themes={["light", "dark", "sti"]}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          themes={["light", "dark", "sti"]}
+        >
           <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
           <SessionProvider>
             <TopNav />
