@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useTransition } from "react";
 import { X } from "lucide-react";
 import { UploadButton } from "~/utils/uploadthing";
@@ -94,9 +95,11 @@ export function AddVehicleForm() {
           <div className="mt-2 mb-3 flex flex-wrap gap-2">
             {photos.map((photo, i) => (
               <div key={photo.fileKey} className="relative">
-                <img
+                <Image
                   src={photo.fileUrl}
                   alt={`Vehicle photo ${i + 1}`}
+                  width={80}
+                  height={80}
                   className="h-20 w-20 rounded-lg object-cover"
                 />
                 {i === 0 && (

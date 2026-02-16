@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -9,23 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import { vehicle, vehiclePhotos } from "~/server/db/schema";
-
-interface FeaturedVehicle {
-  id: number;
-  year: number;
-  make: string;
-  model: string;
-  currentMileage: number;
-  photos: VehiclePhoto[];
-}
-
-interface FeaturedCarsSectionProps {
-  vehicles: FeaturedVehicle[];
-}
-
-const PLACEHOLDER_IMAGE =
-  "https://placehold.co/600x400/1f2937/4b5563?text=No+Photo";
+import type { vehicle, vehiclePhotos } from "~/server/db/schema";
 
 type Vehicle = typeof vehicle.$inferSelect;
 type VehiclePhoto = typeof vehiclePhotos.$inferSelect;
@@ -38,7 +23,7 @@ export default function VehicleCard({
 }) {
   const primaryPhoto =
     vehicle.photos.find((p) => p.isPrimary) ?? vehicle.photos[0];
-  const imageUrl = primaryPhoto?.fileUrl ?? PLACEHOLDER_IMAGE;
+  const imageUrl = primaryPhoto?.fileUrl ?? "/placeholder-car.jpg";
   const title = `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
 
   return (
@@ -47,12 +32,15 @@ export default function VehicleCard({
       className="group block"
     >
       <Card className="h-fu relative w-full overflow-hidden pt-0 transition-shadow hover:shadow-md">
-        <div className="absolute inset-0 z-10 aspect-video bg-black/30" />
-        <img
-          src={imageUrl}
-          alt={title}
-          className="relative z-0 aspect-video w-full object-cover transition-transform duration-300 group-hover:scale-105"
-        />
+        <div className="relative aspect-video w-full overflow-hidden">
+          <Image
+            src={imageUrl}
+            alt={title}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 z-10 bg-black/30" />
+        </div>
         <CardHeader>
           <CardAction>
             <Badge variant="secondary">Featured</Badge>

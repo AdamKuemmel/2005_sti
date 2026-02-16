@@ -1,16 +1,5 @@
-import Link from "next/link";
-import {
-  Card,
-  CardAction,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
 import VehicleCard from "~/app/vehicle/_components/VehicleCard";
-import { vehicle, vehiclePhotos } from "~/server/db/schema";
+import type { vehicle, vehiclePhotos } from "~/server/db/schema";
 type Vehicle = typeof vehicle.$inferSelect;
 type VehiclePhoto = typeof vehiclePhotos.$inferSelect;
 type VehicleWithPhotos = Vehicle & { photos: VehiclePhoto[] };

@@ -99,7 +99,7 @@ export function TopNav(_props: TopNavProps) {
                   >
                     <Avatar className="h-9 w-9">
                       <AvatarImage
-                        src={session.user?.image || undefined}
+                        src={session.user?.image ?? undefined}
                         alt="User avatar"
                       />
                       <AvatarFallback>{initials}</AvatarFallback>
@@ -185,7 +185,7 @@ export function TopNav(_props: TopNavProps) {
                     <div className="flex items-center gap-3 px-3">
                       <Avatar className="h-8 w-8">
                         <AvatarImage
-                          src={session.user?.image || undefined}
+                          src={session.user?.image ?? undefined}
                           alt="User avatar"
                         />
                         <AvatarFallback className="text-xs">

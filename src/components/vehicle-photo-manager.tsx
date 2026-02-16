@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { X } from "lucide-react";
 import { UploadButton } from "~/utils/uploadthing";
@@ -39,9 +40,11 @@ export function VehiclePhotoManager({ vehicleId, initialPhotos }: Props) {
         <div className="mb-4 flex flex-wrap gap-3">
           {photos.map((photo) => (
             <div key={photo.id} className="relative">
-              <img
+              <Image
                 src={photo.fileUrl}
                 alt="Vehicle photo"
+                width={96}
+                height={96}
                 className="h-24 w-24 rounded-lg object-cover"
               />
               {photo.isPrimary && (

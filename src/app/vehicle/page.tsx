@@ -1,6 +1,6 @@
 import { auth } from "~/server/auth";
 import { getAllVehicles, getPublicVehicles } from "~/server/actions/vehicles";
-import { DeleteVehicleButton } from "~/components/delete-vehicle-button";
+
 import Link from "next/link";
 import {
   Empty,
