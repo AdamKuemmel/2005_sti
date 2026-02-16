@@ -89,7 +89,7 @@ export function TopNav(_props: TopNavProps) {
           </nav> */}
 
           {/* Desktop auth */}
-          <div className="flex items-center gap-3 max-md:hidden">
+          <div className="my-auto items-center gap-3 max-md:hidden">
             <ThemeToggle />
             {session ? (
               <DropdownMenu>
