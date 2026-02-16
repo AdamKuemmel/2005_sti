@@ -11,9 +11,6 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { getVehicleInteractions } from "~/server/actions/interactions";
-import { getUpcomingMaintenance } from "~/server/actions/maintenance";
-import { getServiceRecords } from "~/server/actions/service-records";
-import { getVehiclePhotos, getVehicleOwner } from "~/server/actions/vehicles";
 import { auth } from "~/server/auth";
 import type { vehicle, vehiclePhotos } from "~/server/db/schema";
 

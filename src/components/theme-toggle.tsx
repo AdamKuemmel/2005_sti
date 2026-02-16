@@ -23,7 +23,7 @@ export function ThemeToggle() {
   useEffect(() => setMounted(true), []);
 
   const active = themes.find((t) => t.value === theme) ?? themes[0];
-  const ActiveIcon = active!.Icon;
+  const ActiveIcon = active.Icon;
 
   return (
     <DropdownMenu>

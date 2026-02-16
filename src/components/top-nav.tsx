@@ -58,7 +58,6 @@ function getInitials(name?: string | null) {
 
 export function TopNav(_props: TopNavProps) {
   const { data: session } = useSession();
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const initials = getInitials(session?.user?.name);
@@ -141,9 +140,7 @@ export function TopNav(_props: TopNavProps) {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button size="sm" onClick={() => setIsLoginModalOpen(true)}>
-                Sign In
-              </Button>
+              <LoginModal />
             )}
           </div>
 
@@ -230,15 +227,7 @@ export function TopNav(_props: TopNavProps) {
                       </Button>
                     </div>
                   ) : (
-                    <Button
-                      className="w-full"
-                      onClick={() => {
-                        setMobileOpen(false);
-                        setIsLoginModalOpen(true);
-                      }}
-                    >
-                      Sign In
-                    </Button>
+                    <LoginModal />
                   )}
                 </div>
               </SheetContent>
@@ -246,11 +235,6 @@ export function TopNav(_props: TopNavProps) {
           </div>
         </div>
       </header>
-
-      <LoginModal
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-      />
     </>
   );
 }

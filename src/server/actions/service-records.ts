@@ -12,7 +12,7 @@ import {
 import { auth } from "~/server/auth";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { eq, and, desc, inArray } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 export async function addServiceRecord(formData: FormData) {
   const session = await auth();
