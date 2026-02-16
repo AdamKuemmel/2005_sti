@@ -252,6 +252,41 @@ export const vehicleComments = createTable(
   (t) => [index("vehicle_comment_vehicle_idx").on(t.vehicleId)],
 );
 
+// In-app notifications — likes and comments on the user's vehicles
+export const notifications = createTable(
+  "notification",
+  (d) => ({
+    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+    // recipient: the vehicle owner
+    userId: d
+      .varchar({ length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    // actor: who triggered it
+    actorId: d
+      .varchar({ length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    type: d.varchar({ length: 20 }).notNull(), // 'like' | 'comment'
+    vehicleId: d
+      .integer()
+      .notNull()
+      .references(() => vehicle.id, { onDelete: "cascade" }),
+    commentId: d
+      .integer()
+      .references(() => vehicleComments.id, { onDelete: "cascade" }),
+    isRead: d.boolean().notNull().default(false),
+    createdAt: d
+      .timestamp({ withTimezone: true })
+      .$defaultFn(() => new Date())
+      .notNull(),
+  }),
+  (t) => [
+    index("notification_user_idx").on(t.userId),
+    index("notification_read_idx").on(t.isRead),
+  ],
+);
+
 export const users = createTable("user", (d) => ({
   id: d
     .varchar({ length: 255 })
@@ -274,6 +309,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   vehicles: many(vehicle),
   likes: many(vehicleLikes),
   comments: many(vehicleComments),
+  notifications: many(notifications, { relationName: "receivedNotifications" }),
 }));
 
 export const accounts = createTable(
@@ -339,6 +375,7 @@ export const vehicleRelations = relations(vehicle, ({ one, many }) => ({
   photos: many(vehiclePhotos),
   likes: many(vehicleLikes),
   comments: many(vehicleComments),
+  notifications: many(notifications),
 }));
 
 // Vehicle like relations
@@ -406,3 +443,25 @@ export const serviceDocumentsRelations = relations(
     }),
   }),
 );
+
+// Notification relations
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  user: one(users, {
+    fields: [notifications.userId],
+    references: [users.id],
+    relationName: "receivedNotifications",
+  }),
+  actor: one(users, {
+    fields: [notifications.actorId],
+    references: [users.id],
+    relationName: "sentNotifications",
+  }),
+  vehicle: one(vehicle, {
+    fields: [notifications.vehicleId],
+    references: [vehicle.id],
+  }),
+  comment: one(vehicleComments, {
+    fields: [notifications.commentId],
+    references: [vehicleComments.id],
+  }),
+}));

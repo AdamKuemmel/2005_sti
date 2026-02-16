@@ -1,8 +1,6 @@
-"use client";
-
+import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-import { updateVehicle } from "~/server/actions/vehicles";
+import { Button } from "~/components/ui/button";
 
 interface Vehicle {
   id: number;
@@ -13,77 +11,58 @@ interface Vehicle {
   lastMileageUpdate: Date;
 }
 
+interface Owner {
+  name: string | null;
+  image: string | null;
+}
+
 interface HistoryHeaderProps {
   vehicle: Vehicle;
   isOwner: boolean;
+  owner: Owner | null;
 }
 
-export function HistoryHeader({ vehicle, isOwner }: HistoryHeaderProps) {
-  const [editing, setEditing] = useState(false);
-
+export function HistoryHeader({ vehicle, isOwner, owner }: HistoryHeaderProps) {
   return (
     <div className="mb-8">
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        {/* Left: title + meta */}
         <div>
           <h1 className="text-3xl font-bold">
             {vehicle.year} {vehicle.make} {vehicle.model}
           </h1>
-          <p className="mt-2 text-xl text-muted-foreground">
-            Current Mileage: {vehicle.currentMileage.toLocaleString()} miles
+          <p className="mt-1 text-xl text-muted-foreground">
+            {vehicle.currentMileage.toLocaleString()} miles
           </p>
+          {owner && (
+            <div className="mt-2 flex items-center gap-2">
+              {owner.image ? (
+                <Image
+                  src={owner.image}
+                  alt={owner.name ?? "Owner"}
+                  width={22}
+                  height={22}
+                  className="rounded-full"
+                />
+              ) : (
+                <div className="flex h-5.5 w-5.5 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
+                  {(owner.name ?? "?")[0]?.toUpperCase()}
+                </div>
+              )}
+              <span className="text-sm text-muted-foreground">{owner.name ?? "Unknown"}</span>
+            </div>
+          )}
         </div>
 
+        {/* Right: owner actions */}
         {isOwner && (
-          <div className="flex gap-2">
-            {editing ? (
-              <form action={updateVehicle} className="flex items-center gap-2">
-                <input type="hidden" name="vehicleId" value={vehicle.id} />
-                <input type="hidden" name="year" value={vehicle.year} />
-                <input type="hidden" name="make" value={vehicle.make} />
-                <input type="hidden" name="model" value={vehicle.model} />
-                <input type="hidden" name="redirectTo" value="/history" />
-                <input
-                  type="number"
-                  name="currentMileage"
-                  defaultValue={vehicle.currentMileage}
-                  min={vehicle.currentMileage}
-                  className="w-36 rounded border border-input px-3 py-2 text-sm"
-                  autoFocus
-                />
-                <button
-                  type="submit"
-                  className="rounded bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
-                >
-                  Save
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setEditing(false)}
-                  className="rounded border border-input px-4 py-2 text-sm hover:bg-muted/50"
-                >
-                  Cancel
-                </button>
-              </form>
-            ) : (
-              <button
-                onClick={() => setEditing(true)}
-                className="rounded bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
-              >
-                Update Mileage
-              </button>
-            )}
-            <Link
-              href={`/vehicle/settings?vehicleId=${vehicle.id}`}
-              className="rounded border border-input px-4 py-2 text-sm hover:bg-muted/50"
-            >
-              Settings
-            </Link>
-            <Link
-              href={`/vehicle/service/add?vehicleId=${vehicle.id}`}
-              className="rounded bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
-            >
-              Add Service Record
-            </Link>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" asChild>
+              <Link href={`/vehicle/edit?vehicleId=${vehicle.id}`}>Edit</Link>
+            </Button>
+            <Button asChild>
+              <Link href="/vehicle/service/add">Add Record</Link>
+            </Button>
           </div>
         )}
       </div>

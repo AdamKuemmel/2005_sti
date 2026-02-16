@@ -169,3 +169,29 @@ export async function searchServiceRecords(_searchTerm: string) {
   // TODO: implement full-text search
   return [];
 }
+
+export async function deleteServiceRecord(formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  const recordId = parseInt(formData.get("recordId") as string);
+
+  const [record] = await db
+    .select()
+    .from(serviceRecords)
+    .where(eq(serviceRecords.id, recordId));
+
+  if (!record) throw new Error("Record not found");
+
+  const [ownedVehicle] = await db
+    .select()
+    .from(vehicle)
+    .where(and(eq(vehicle.id, record.vehicleId), eq(vehicle.ownerId, session.user.id)));
+
+  if (!ownedVehicle) throw new Error("Unauthorized");
+
+  await db.delete(serviceRecords).where(eq(serviceRecords.id, recordId));
+
+  revalidatePath("/vehicle/history");
+  revalidatePath("/vehicle/edit");
+}

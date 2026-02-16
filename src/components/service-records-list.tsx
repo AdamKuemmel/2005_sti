@@ -66,7 +66,7 @@ export function ServiceRecordsList({
       </div>
 
       {/* Category Tabs */}
-      <div className="border-input mb-6 flex gap-2 border-b">
+      <div className="border-input mb-6 flex gap-2 overflow-x-auto border-b">
         {CATEGORIES.map((cat) => (
           <Link
             key={cat.value}

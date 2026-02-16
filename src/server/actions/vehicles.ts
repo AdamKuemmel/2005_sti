@@ -6,6 +6,7 @@ import {
   vehiclePhotos,
   serviceRecords,
   maintenanceSchedule,
+  users,
 } from "~/server/db/schema";
 import { auth } from "~/server/auth";
 import { redirect } from "next/navigation";
@@ -186,6 +187,14 @@ export async function deleteVehicle(formData: FormData) {
 
   revalidatePath("/vehicle");
   redirect("/vehicle");
+}
+
+export async function getVehicleOwner(ownerId: string) {
+  const [owner] = await db
+    .select({ name: users.name, image: users.image })
+    .from(users)
+    .where(eq(users.id, ownerId));
+  return owner ?? null;
 }
 
 export async function getVehiclePhotos(vehicleId: number) {
