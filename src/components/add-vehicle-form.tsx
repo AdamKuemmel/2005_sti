@@ -5,6 +5,9 @@ import { useState, useTransition } from "react";
 import { X } from "lucide-react";
 import { UploadButton } from "~/utils/uploadthing";
 import { addVehicle } from "~/server/actions/vehicles";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
 
 interface UploadedPhoto {
   fileUrl: string;
@@ -28,68 +31,56 @@ export function AddVehicleForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <label htmlFor="year" className="block text-sm font-medium text-foreground">
-          Year
-        </label>
-        <input
+      <div className="space-y-1.5">
+        <Label htmlFor="year">Year</Label>
+        <Input
           type="number"
           id="year"
           name="year"
           required
           min="1900"
           max={new Date().getFullYear() + 1}
-          className="mt-1 block w-full rounded-md border border-input px-3 py-2 shadow-sm focus:border-ring focus:ring-ring focus:ring-1 focus:outline-none"
           placeholder="2005"
         />
       </div>
 
-      <div>
-        <label htmlFor="make" className="block text-sm font-medium text-foreground">
-          Make
-        </label>
-        <input
+      <div className="space-y-1.5">
+        <Label htmlFor="make">Make</Label>
+        <Input
           type="text"
           id="make"
           name="make"
           required
-          className="mt-1 block w-full rounded-md border border-input px-3 py-2 shadow-sm focus:border-ring focus:ring-ring focus:ring-1 focus:outline-none"
           placeholder="Subaru"
         />
       </div>
 
-      <div>
-        <label htmlFor="model" className="block text-sm font-medium text-foreground">
-          Model
-        </label>
-        <input
+      <div className="space-y-1.5">
+        <Label htmlFor="model">Model</Label>
+        <Input
           type="text"
           id="model"
           name="model"
           required
-          className="mt-1 block w-full rounded-md border border-input px-3 py-2 shadow-sm focus:border-ring focus:ring-ring focus:ring-1 focus:outline-none"
           placeholder="WRX STI"
         />
       </div>
 
-      <div>
-        <label htmlFor="currentMileage" className="block text-sm font-medium text-foreground">
-          Current Mileage
-        </label>
-        <input
+      <div className="space-y-1.5">
+        <Label htmlFor="currentMileage">Current Mileage</Label>
+        <Input
           type="number"
           id="currentMileage"
           name="currentMileage"
           required
           min="0"
-          className="mt-1 block w-full rounded-md border border-input px-3 py-2 shadow-sm focus:border-ring focus:ring-ring focus:ring-1 focus:outline-none"
           placeholder="45000"
         />
       </div>
 
       {/* Photo upload — lives outside the form submit flow to avoid button conflicts */}
       <div>
-        <label className="block text-sm font-medium text-foreground">Photos</label>
+        <Label>Photos</Label>
 
         {photos.length > 0 && (
           <div className="mt-2 mb-3 flex flex-wrap gap-2">
@@ -107,13 +98,15 @@ export function AddVehicleForm() {
                     Primary
                   </span>
                 )}
-                <button
+                <Button
                   type="button"
+                  variant="destructive"
+                  size="icon-xs"
                   onClick={() => removePhoto(photo.fileKey)}
-                  className="absolute -top-1.5 -right-1.5 rounded-full bg-destructive p-0.5 text-destructive-foreground hover:bg-destructive/90"
+                  className="absolute -top-1.5 -right-1.5"
                 >
-                  <X size={12} />
-                </button>
+                  <X />
+                </Button>
               </div>
             ))}
           </div>
@@ -137,19 +130,12 @@ export function AddVehicleForm() {
       </div>
 
       <div className="flex gap-4">
-        <button
-          type="submit"
-          disabled={isPending}
-          className="rounded bg-primary px-6 py-2 text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
-        >
+        <Button type="submit" disabled={isPending}>
           {isPending ? "Adding..." : "Add Vehicle"}
-        </button>
-        <a
-          href="/vehicle/history"
-          className="rounded bg-secondary px-6 py-2 text-foreground hover:bg-secondary/80"
-        >
-          Cancel
-        </a>
+        </Button>
+        <Button variant="secondary" asChild>
+          <a href="/vehicle/history">Cancel</a>
+        </Button>
       </div>
     </form>
   );

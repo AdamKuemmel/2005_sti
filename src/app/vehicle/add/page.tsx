@@ -13,6 +13,10 @@ export default async function AddVehiclePage() {
     <div className="container mx-auto p-8">
       <div className="mx-auto max-w-2xl">
         <h1 className="mb-6 text-3xl font-bold">Add Vehicle</h1>
+        <p className="text-muted-foreground mb-8">
+          Start tracking your vehicle's maintenance history by adding it to your
+          profile.
+        </p>
         <AddVehicleForm />
       </div>
     </div>

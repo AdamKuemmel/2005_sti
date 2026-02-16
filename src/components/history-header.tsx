@@ -15,10 +15,10 @@ interface Vehicle {
 
 interface HistoryHeaderProps {
   vehicle: Vehicle;
-  isLoggedIn: boolean;
+  isOwner: boolean;
 }
 
-export function HistoryHeader({ vehicle, isLoggedIn }: HistoryHeaderProps) {
+export function HistoryHeader({ vehicle, isOwner }: HistoryHeaderProps) {
   const [editing, setEditing] = useState(false);
 
   return (
@@ -33,7 +33,7 @@ export function HistoryHeader({ vehicle, isLoggedIn }: HistoryHeaderProps) {
           </p>
         </div>
 
-        {isLoggedIn && (
+        {isOwner && (
           <div className="flex gap-2">
             {editing ? (
               <form action={updateVehicle} className="flex items-center gap-2">

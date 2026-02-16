@@ -55,7 +55,7 @@ export default async function HistoryPage({ searchParams }: PageProps) {
 
   return (
     <div className="container mx-auto p-8">
-      <HistoryHeader vehicle={vehicle} isLoggedIn={!!session} />
+      <HistoryHeader vehicle={vehicle} isOwner={session?.user?.id === vehicle.ownerId} />
 
       {/* Upcoming Maintenance Section */}
       <div className="mb-8">

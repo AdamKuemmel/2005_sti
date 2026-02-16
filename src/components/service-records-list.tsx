@@ -61,19 +61,19 @@ export function ServiceRecordsList({
           placeholder="Search service records..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full rounded border border-input px-4 py-2"
+          className="border-input w-full rounded border px-4 py-2"
         />
       </div>
 
       {/* Category Tabs */}
-      <div className="mb-6 flex gap-2 border-b border-input">
+      <div className="border-input mb-6 flex gap-2 border-b">
         {CATEGORIES.map((cat) => (
           <Link
             key={cat.value}
-            href={`/history?category=${cat.value}`}
+            href={`/vehicle/history?category=${cat.value}`}
             className={`px-4 py-2 ${
               currentCategory === cat.value
-                ? "border-b-2 border-primary font-semibold text-primary"
+                ? "border-primary text-primary border-b-2 font-semibold"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -118,11 +118,11 @@ function ServiceRecordCard({
   };
 
   return (
-    <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+    <div className="border-border bg-card rounded-lg border p-4 shadow-sm">
       {/* Card Header */}
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex items-center gap-4 text-sm">
             <span>{formatDate(record.serviceDate)}</span>
             <span>•</span>
             <span>{record.mileage.toLocaleString()} miles</span>
@@ -135,7 +135,7 @@ function ServiceRecordCard({
             {record.totalCost && (
               <>
                 <span className="text-muted-foreground">•</span>
-                <span className="font-medium text-primary">
+                <span className="text-primary font-medium">
                   ${parseFloat(record.totalCost).toFixed(2)} total
                 </span>
               </>
@@ -165,7 +165,7 @@ function ServiceRecordCard({
 
       {/* Expanded Details */}
       {isExpanded && (
-        <div className="mt-4 border-t border-border pt-4">
+        <div className="border-border mt-4 border-t pt-4">
           {record.location && (
             <div className="mb-2">
               <span className="font-semibold">Location: </span>
@@ -185,7 +185,7 @@ function ServiceRecordCard({
             </div>
           )}
           {(record.laborCost ?? record.partsCost) && (
-            <div className="mt-3 border-t border-border pt-3">
+            <div className="border-border mt-3 border-t pt-3">
               <div className="font-semibold">Cost Breakdown:</div>
               {record.partsCost && (
                 <div className="mt-1">

@@ -2,6 +2,10 @@
 
 import { useState } from "react";
 import { addServiceRecord } from "~/server/actions/service-records";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import { Textarea } from "~/components/ui/textarea";
 
 interface Vehicle {
   id: number;
@@ -113,6 +117,9 @@ const LOCATIONS = [
   "Tire Shop",
 ];
 
+const selectClassName =
+  "border-input dark:bg-input/30 flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-base shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm";
+
 export function AddServiceForm({ vehicle }: AddServiceFormProps) {
   const [category, setCategory] = useState<string>("fluid");
   const [customTitle, setCustomTitle] = useState(false);
@@ -129,13 +136,8 @@ export function AddServiceForm({ vehicle }: AddServiceFormProps) {
       <input type="hidden" name="vehicleId" value={vehicle.id} />
 
       {/* Category Selection */}
-      <div>
-        <label
-          htmlFor="category"
-          className="block text-sm font-medium text-foreground"
-        >
-          Category *
-        </label>
+      <div className="space-y-1.5">
+        <Label htmlFor="category">Category *</Label>
         <select
           id="category"
           name="category"
@@ -146,7 +148,7 @@ export function AddServiceForm({ vehicle }: AddServiceFormProps) {
             setCustomTitle(false);
             setCustomBrand(false);
           }}
-          className="mt-1 block w-full rounded-md border border-input px-3 py-2 shadow-sm focus:border-ring focus:ring-ring focus:ring-1 focus:outline-none"
+          className={selectClassName}
         >
           <option value="fluid">Fluids</option>
           <option value="engine_drivetrain">Engine/Drivetrain</option>
@@ -157,20 +159,15 @@ export function AddServiceForm({ vehicle }: AddServiceFormProps) {
       </div>
 
       {/* Service Title */}
-      <div>
-        <label
-          htmlFor="title"
-          className="block text-sm font-medium text-foreground"
-        >
-          Service *
-        </label>
+      <div className="space-y-1.5">
+        <Label htmlFor="title">Service *</Label>
         {!customTitle ? (
           <div className="flex gap-2">
             <select
               id="title"
               name="title"
               required
-              className="mt-1 block w-full rounded-md border border-input px-3 py-2 shadow-sm focus:border-ring focus:ring-ring focus:ring-1 focus:outline-none"
+              className={selectClassName}
             >
               <option value="">Select a service...</option>
               {titleOptions.map((title) => (
@@ -179,88 +176,66 @@ export function AddServiceForm({ vehicle }: AddServiceFormProps) {
                 </option>
               ))}
             </select>
-            <button
+            <Button
               type="button"
+              variant="secondary"
               onClick={() => setCustomTitle(true)}
-              className="mt-1 rounded bg-secondary px-4 py-2 text-sm whitespace-nowrap hover:bg-secondary"
             >
               Custom
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="flex gap-2">
-            <input
+            <Input
               type="text"
               id="title"
               name="title"
               required
               placeholder="Enter custom service name"
-              className="mt-1 block w-full rounded-md border border-input px-3 py-2 shadow-sm focus:border-ring focus:ring-ring focus:ring-1 focus:outline-none"
             />
-            <button
+            <Button
               type="button"
+              variant="secondary"
               onClick={() => setCustomTitle(false)}
-              className="mt-1 rounded bg-secondary px-4 py-2 text-sm whitespace-nowrap hover:bg-secondary"
             >
               Dropdown
-            </button>
+            </Button>
           </div>
         )}
       </div>
 
       {/* Date */}
-      <div>
-        <label
-          htmlFor="serviceDate"
-          className="block text-sm font-medium text-foreground"
-        >
-          Service Date *
-        </label>
-        <input
+      <div className="space-y-1.5">
+        <Label htmlFor="serviceDate">Service Date *</Label>
+        <Input
           type="date"
           id="serviceDate"
           name="serviceDate"
           required
           max={new Date().toISOString().split("T")[0]}
-          className="mt-1 block w-full rounded-md border border-input px-3 py-2 shadow-sm focus:border-ring focus:ring-ring focus:ring-1 focus:outline-none"
         />
       </div>
 
       {/* Mileage */}
-      <div>
-        <label
-          htmlFor="mileage"
-          className="block text-sm font-medium text-foreground"
-        >
-          Mileage *
-        </label>
-        <input
+      <div className="space-y-1.5">
+        <Label htmlFor="mileage">Mileage *</Label>
+        <Input
           type="number"
           id="mileage"
           name="mileage"
           required
           min="0"
           defaultValue={vehicle.currentMileage}
-          className="mt-1 block w-full rounded-md border border-input px-3 py-2 shadow-sm focus:border-ring focus:ring-ring focus:ring-1 focus:outline-none"
         />
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Current vehicle mileage: {vehicle.currentMileage.toLocaleString()}
         </p>
       </div>
 
       {/* Location */}
-      <div>
-        <label
-          htmlFor="location"
-          className="block text-sm font-medium text-foreground"
-        >
-          Location
-        </label>
-        <select
-          id="location"
-          name="location"
-          className="mt-1 block w-full rounded-md border border-input px-3 py-2 shadow-sm focus:border-ring focus:ring-ring focus:ring-1 focus:outline-none"
-        >
+      <div className="space-y-1.5">
+        <Label htmlFor="location">Location</Label>
+        <select id="location" name="location" className={selectClassName}>
           <option value="">Select location...</option>
           {LOCATIONS.map((loc) => (
             <option key={loc} value={loc}>
@@ -271,20 +246,11 @@ export function AddServiceForm({ vehicle }: AddServiceFormProps) {
       </div>
 
       {/* Parts Brand */}
-      <div>
-        <label
-          htmlFor="partsBrand"
-          className="block text-sm font-medium text-foreground"
-        >
-          Parts Brand
-        </label>
+      <div className="space-y-1.5">
+        <Label htmlFor="partsBrand">Parts Brand</Label>
         {!customBrand ? (
           <div className="flex gap-2">
-            <select
-              id="partsBrand"
-              name="partsBrand"
-              className="mt-1 block w-full rounded-md border border-input px-3 py-2 shadow-sm focus:border-ring focus:ring-ring focus:ring-1 focus:outline-none"
-            >
+            <select id="partsBrand" name="partsBrand" className={selectClassName}>
               <option value="">Select brand...</option>
               {brandOptions.map((brand) => (
                 <option key={brand} value={brand}>
@@ -292,137 +258,98 @@ export function AddServiceForm({ vehicle }: AddServiceFormProps) {
                 </option>
               ))}
             </select>
-            <button
+            <Button
               type="button"
+              variant="secondary"
               onClick={() => setCustomBrand(true)}
-              className="mt-1 rounded bg-secondary px-4 py-2 text-sm whitespace-nowrap hover:bg-secondary"
             >
               Custom
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="flex gap-2">
-            <input
+            <Input
               type="text"
               id="partsBrand"
               name="partsBrand"
               placeholder="Enter custom brand"
-              className="mt-1 block w-full rounded-md border border-input px-3 py-2 shadow-sm focus:border-ring focus:ring-ring focus:ring-1 focus:outline-none"
             />
-            <button
+            <Button
               type="button"
+              variant="secondary"
               onClick={() => setCustomBrand(false)}
-              className="mt-1 rounded bg-secondary px-4 py-2 text-sm whitespace-nowrap hover:bg-secondary"
             >
               Dropdown
-            </button>
+            </Button>
           </div>
         )}
       </div>
 
       {/* Part Number */}
-      <div>
-        <label
-          htmlFor="partNumber"
-          className="block text-sm font-medium text-foreground"
-        >
-          Part Number
-        </label>
-        <input
+      <div className="space-y-1.5">
+        <Label htmlFor="partNumber">Part Number</Label>
+        <Input
           type="text"
           id="partNumber"
           name="partNumber"
-          className="mt-1 block w-full rounded-md border border-input px-3 py-2 shadow-sm focus:border-ring focus:ring-ring focus:ring-1 focus:outline-none"
           placeholder="e.g., 15208AA15A"
         />
       </div>
 
       {/* Description */}
-      <div>
-        <label
-          htmlFor="description"
-          className="block text-sm font-medium text-foreground"
-        >
-          Description
-        </label>
-        <textarea
+      <div className="space-y-1.5">
+        <Label htmlFor="description">Description</Label>
+        <Textarea
           id="description"
           name="description"
           rows={3}
-          className="mt-1 block w-full rounded-md border border-input px-3 py-2 shadow-sm focus:border-ring focus:ring-ring focus:ring-1 focus:outline-none"
           placeholder="Brief description of the service performed..."
         />
       </div>
 
       {/* Costs */}
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label
-            htmlFor="partsCost"
-            className="block text-sm font-medium text-foreground"
-          >
-            Parts Cost ($)
-          </label>
-          <input
+        <div className="space-y-1.5">
+          <Label htmlFor="partsCost">Parts Cost ($)</Label>
+          <Input
             type="number"
             id="partsCost"
             name="partsCost"
             step="0.01"
             min="0"
-            className="mt-1 block w-full rounded-md border border-input px-3 py-2 shadow-sm focus:border-ring focus:ring-ring focus:ring-1 focus:outline-none"
             placeholder="0.00"
           />
         </div>
-        <div>
-          <label
-            htmlFor="laborCost"
-            className="block text-sm font-medium text-foreground"
-          >
-            Labor Cost ($)
-          </label>
-          <input
+        <div className="space-y-1.5">
+          <Label htmlFor="laborCost">Labor Cost ($)</Label>
+          <Input
             type="number"
             id="laborCost"
             name="laborCost"
             step="0.01"
             min="0"
-            className="mt-1 block w-full rounded-md border border-input px-3 py-2 shadow-sm focus:border-ring focus:ring-ring focus:ring-1 focus:outline-none"
             placeholder="0.00"
           />
         </div>
       </div>
 
       {/* Notes */}
-      <div>
-        <label
-          htmlFor="notes"
-          className="block text-sm font-medium text-foreground"
-        >
-          Additional Notes
-        </label>
-        <textarea
+      <div className="space-y-1.5">
+        <Label htmlFor="notes">Additional Notes</Label>
+        <Textarea
           id="notes"
           name="notes"
           rows={4}
-          className="mt-1 block w-full rounded-md border border-input px-3 py-2 shadow-sm focus:border-ring focus:ring-ring focus:ring-1 focus:outline-none"
           placeholder="Any additional observations, issues found, recommendations, etc..."
         />
       </div>
 
       {/* Submit Buttons */}
       <div className="flex gap-4">
-        <button
-          type="submit"
-          className="rounded bg-primary px-6 py-2 text-primary-foreground hover:bg-primary/90"
-        >
-          Add Service Record
-        </button>
-        <a
-          href="/history"
-          className="rounded bg-secondary px-6 py-2 text-foreground hover:bg-secondary/80"
-        >
-          Cancel
-        </a>
+        <Button type="submit">Add Service Record</Button>
+        <Button variant="secondary" asChild>
+          <a href="/history">Cancel</a>
+        </Button>
       </div>
     </form>
   );

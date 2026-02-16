@@ -20,6 +20,10 @@ export default async function AddServicePage() {
     <div className="container mx-auto p-8">
       <div className="mx-auto max-w-3xl">
         <h1 className="mb-6 text-3xl font-bold">Add Service Record</h1>
+        <p className="text-muted-foreground mb-8">
+          Keep your vehicle's maintenance history up to date by adding a new
+          service record.
+        </p>
         <AddServiceForm vehicle={vehicle} />
       </div>
     </div>
