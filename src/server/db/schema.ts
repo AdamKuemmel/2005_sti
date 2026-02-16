@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { index, pgTableCreator, primaryKey } from "drizzle-orm/pg-core";
+import { index, pgTableCreator, primaryKey, unique } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
 /**
@@ -206,6 +206,52 @@ export const serviceDocuments = createTable(
   (t) => [index("service_record_idx").on(t.serviceRecordId)],
 );
 
+// Vehicle likes — one per user per vehicle
+export const vehicleLikes = createTable(
+  "vehicle_like",
+  (d) => ({
+    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+    vehicleId: d
+      .integer()
+      .notNull()
+      .references(() => vehicle.id, { onDelete: "cascade" }),
+    userId: d
+      .varchar({ length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: d
+      .timestamp({ withTimezone: true })
+      .$defaultFn(() => new Date())
+      .notNull(),
+  }),
+  (t) => [
+    unique("vehicle_like_unique").on(t.vehicleId, t.userId),
+    index("vehicle_like_vehicle_idx").on(t.vehicleId),
+  ],
+);
+
+// Vehicle comments
+export const vehicleComments = createTable(
+  "vehicle_comment",
+  (d) => ({
+    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+    vehicleId: d
+      .integer()
+      .notNull()
+      .references(() => vehicle.id, { onDelete: "cascade" }),
+    userId: d
+      .varchar({ length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    body: d.text().notNull(),
+    createdAt: d
+      .timestamp({ withTimezone: true })
+      .$defaultFn(() => new Date())
+      .notNull(),
+  }),
+  (t) => [index("vehicle_comment_vehicle_idx").on(t.vehicleId)],
+);
+
 export const users = createTable("user", (d) => ({
   id: d
     .varchar({ length: 255 })
@@ -226,6 +272,8 @@ export const users = createTable("user", (d) => ({
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
   vehicles: many(vehicle),
+  likes: many(vehicleLikes),
+  comments: many(vehicleComments),
 }));
 
 export const accounts = createTable(
@@ -289,6 +337,20 @@ export const vehicleRelations = relations(vehicle, ({ one, many }) => ({
   serviceRecords: many(serviceRecords),
   maintenanceSchedule: many(maintenanceSchedule),
   photos: many(vehiclePhotos),
+  likes: many(vehicleLikes),
+  comments: many(vehicleComments),
+}));
+
+// Vehicle like relations
+export const vehicleLikesRelations = relations(vehicleLikes, ({ one }) => ({
+  vehicle: one(vehicle, { fields: [vehicleLikes.vehicleId], references: [vehicle.id] }),
+  user: one(users, { fields: [vehicleLikes.userId], references: [users.id] }),
+}));
+
+// Vehicle comment relations
+export const vehicleCommentsRelations = relations(vehicleComments, ({ one }) => ({
+  vehicle: one(vehicle, { fields: [vehicleComments.vehicleId], references: [vehicle.id] }),
+  user: one(users, { fields: [vehicleComments.userId], references: [users.id] }),
 }));
 
 // Vehicle photo relations

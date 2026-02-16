@@ -2,9 +2,12 @@ import { auth } from "~/server/auth";
 import { getVehicle } from "~/server/actions/vehicles";
 import { getServiceRecords } from "~/server/actions/service-records";
 import { getUpcomingMaintenance } from "~/server/actions/maintenance";
+import { getVehicleInteractions } from "~/server/actions/interactions";
 import { ServiceRecordsList } from "~/components/service-records-list";
 import { HistoryHeader } from "~/components/history-header";
 import { UpcomingMaintenanceTable } from "~/components/upcoming-maintenance-table";
+import { LikeButton } from "~/components/like-button";
+import { CommentsSection } from "~/components/comments-section";
 import Link from "next/link";
 
 interface PageProps {
@@ -23,12 +26,13 @@ export default async function HistoryPage({ searchParams }: PageProps) {
   const vehicleId = params.vehicleId ? parseInt(params.vehicleId) : undefined;
 
   const vehicle = await getVehicle(vehicleId);
-  const records = vehicle
-    ? await getServiceRecords(vehicle.id, params.category)
-    : [];
-  const upcomingMaintenance = vehicle
-    ? await getUpcomingMaintenance(vehicle.id)
-    : [];
+  const [records, upcomingMaintenance, interactions] = vehicle
+    ? await Promise.all([
+        getServiceRecords(vehicle.id, params.category),
+        getUpcomingMaintenance(vehicle.id),
+        getVehicleInteractions(vehicle.id),
+      ])
+    : [[], [], null];
 
   if (!vehicle) {
     return (
@@ -57,6 +61,17 @@ export default async function HistoryPage({ searchParams }: PageProps) {
     <div className="container mx-auto p-8">
       <HistoryHeader vehicle={vehicle} isOwner={session?.user?.id === vehicle.ownerId} />
 
+      {interactions && (
+        <div className="mb-8 -mt-4">
+          <LikeButton
+            vehicleId={vehicle.id}
+            initialCount={interactions.likeCount}
+            initialHasLiked={interactions.hasLiked}
+            isLoggedIn={!!session}
+          />
+        </div>
+      )}
+
       {/* Upcoming Maintenance Section */}
       <div className="mb-8">
         <h2 className="mb-4 text-2xl font-bold">Upcoming Maintenance</h2>
@@ -67,7 +82,7 @@ export default async function HistoryPage({ searchParams }: PageProps) {
       </div>
 
       {/* Service History Section */}
-      <div>
+      <div className="mb-8">
         <h2 className="mb-4 text-2xl font-bold">Service History</h2>
         <ServiceRecordsList
           records={records}
@@ -75,6 +90,15 @@ export default async function HistoryPage({ searchParams }: PageProps) {
           isLoggedIn={!!session}
         />
       </div>
+
+      {/* Comments Section */}
+      {interactions && (
+        <CommentsSection
+          vehicleId={vehicle.id}
+          initialComments={interactions.comments}
+          currentUserId={session?.user?.id}
+        />
+      )}
     </div>
   );
 }
