@@ -5,6 +5,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
 import { Menu, Gauge, Home, Car, LogOut } from "lucide-react";
 import { LoginModal } from "~/components/auth/login-modal";
+import { ThemeToggle } from "~/components/theme-toggle";
 import { Button } from "~/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import {
@@ -88,7 +89,8 @@ export function TopNav(_props: TopNavProps) {
           </nav> */}
 
           {/* Desktop auth */}
-          <div className="items-center gap-3 max-md:hidden">
+          <div className="flex items-center gap-3 max-md:hidden">
+            <ThemeToggle />
             {session ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -176,6 +178,15 @@ export function TopNav(_props: TopNavProps) {
                   </Link>
                 ))}
               </nav>
+
+              <Separator />
+
+              <div className="flex items-center justify-between px-2">
+                <span className="text-muted-foreground px-3 text-xs font-medium">
+                  Theme
+                </span>
+                <ThemeToggle />
+              </div>
 
               <Separator />
 

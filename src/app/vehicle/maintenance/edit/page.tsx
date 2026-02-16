@@ -39,7 +39,7 @@ export default async function EditMaintenancePage({ searchParams }: PageProps) {
         <h1 className="mb-2 text-3xl font-bold">
           {existingSchedule.length > 0 ? "Edit" : "Setup"} Maintenance Schedule
         </h1>
-        <p className="mb-6 text-gray-600">
+        <p className="mb-6 text-muted-foreground">
           {existingSchedule.length > 0
             ? `Review and update the maintenance intervals for your ${vehicle.year} ${vehicle.make} ${vehicle.model}.`
             : `Setup maintenance intervals for your ${vehicle.year} ${vehicle.make} ${vehicle.model}. These are based on the official Subaru service manual, but you can adjust them to be more conservative.`}

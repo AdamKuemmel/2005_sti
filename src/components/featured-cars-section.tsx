@@ -14,13 +14,13 @@ export function FeaturedCarsSection({
   }
 
   return (
-    <section className="bg-gray-100 px-6 py-16">
+    <section className="bg-muted px-6 py-16">
       <div className="mx-auto max-w-6xl">
         <div className="mb-10">
-          <h2 className="text-3xl font-bold text-gray-900">
+          <h2 className="text-3xl font-bold text-foreground">
             Featured Vehicles
           </h2>
-          <p className="mt-2 text-gray-500">
+          <p className="mt-2 text-muted-foreground">
             Community builds with documented histories
           </p>
         </div>

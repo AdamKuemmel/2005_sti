@@ -35,7 +35,7 @@ export default async function HistoryPage({ searchParams }: PageProps) {
       <div className="container mx-auto p-8">
         <div className="flex flex-col items-center justify-center py-16">
           <h1 className="text-3xl font-bold">No vehicles available</h1>
-          <p className="mt-4 text-gray-600">
+          <p className="mt-4 text-muted-foreground">
             {session
               ? "Get started by adding your first vehicle."
               : "Check back later for vehicle maintenance history."}
@@ -43,7 +43,7 @@ export default async function HistoryPage({ searchParams }: PageProps) {
           {session && (
             <Link
               href="/vehicle/add"
-              className="mt-6 rounded bg-green-600 px-6 py-3 text-white hover:bg-green-700"
+              className="mt-6 rounded bg-primary px-6 py-3 text-primary-foreground hover:bg-primary/90"
             >
               Add Vehicle
             </Link>

@@ -30,8 +30,8 @@ export function UpcomingMaintenanceTable({
 }: UpcomingMaintenanceTableProps) {
   if (items.length === 0) {
     return (
-      <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
-        <p className="text-gray-500">
+      <div className="rounded-lg border border-border bg-card p-8 text-center">
+        <p className="text-muted-foreground">
           No upcoming maintenance scheduled. All caught up! 🎉
         </p>
       </div>
@@ -42,19 +42,19 @@ export function UpcomingMaintenanceTable({
     switch (status) {
       case "overdue":
         return (
-          <span className="rounded-full bg-red-100 px-2 py-1 text-xs font-semibold text-red-800">
+          <span className="rounded-full bg-destructive/10 px-2 py-1 text-xs font-semibold text-destructive">
             Overdue
           </span>
         );
       case "due-soon":
         return (
-          <span className="rounded-full bg-yellow-100 px-2 py-1 text-xs font-semibold text-yellow-800">
+          <span className="rounded-full bg-accent/50 px-2 py-1 text-xs font-semibold text-accent-foreground">
             Due Soon
           </span>
         );
       case "upcoming":
         return (
-          <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-800">
+          <span className="rounded-full bg-primary/10 px-2 py-1 text-xs font-semibold text-primary">
             Upcoming
           </span>
         );
@@ -88,7 +88,7 @@ export function UpcomingMaintenanceTable({
   };
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white">
+    <div className="rounded-lg border border-border bg-card">
       <Table>
         <TableHeader>
           <TableRow>
@@ -104,7 +104,7 @@ export function UpcomingMaintenanceTable({
             <TableRow key={item.id}>
               <TableCell>{getStatusBadge(item.dueStatus)}</TableCell>
               <TableCell className="font-medium">{item.title}</TableCell>
-              <TableCell className="text-sm text-gray-600">
+              <TableCell className="text-sm text-muted-foreground">
                 {item.category.replace("_", " ")}
               </TableCell>
               <TableCell className="text-sm">{formatDueInfo(item)}</TableCell>
@@ -114,7 +114,7 @@ export function UpcomingMaintenanceTable({
                     <div>{item.nextDueMileage.toLocaleString()} mi</div>
                   )}
                   {item.nextDueDate && (
-                    <div className="text-gray-500">
+                    <div className="text-muted-foreground">
                       {new Date(item.nextDueDate).toLocaleDateString()}
                     </div>
                   )}

@@ -35,7 +35,7 @@ export default async function VehicleMaintenancePage({ searchParams }: PageProps
     <div className="container mx-auto p-8">
       <div className="mx-auto max-w-4xl">
         <div className="mb-6 flex items-center gap-4">
-          <Link href="/vehicle" className="text-sm text-gray-500 hover:text-gray-700">
+          <Link href="/vehicle" className="text-sm text-muted-foreground hover:text-foreground">
             ← My Vehicles
           </Link>
         </div>
@@ -43,7 +43,7 @@ export default async function VehicleMaintenancePage({ searchParams }: PageProps
         <h1 className="mb-2 text-3xl font-bold">
           {existingSchedule.length > 0 ? "Edit" : "Setup"} Maintenance Schedule
         </h1>
-        <p className="mb-6 text-gray-600">
+        <p className="mb-6 text-muted-foreground">
           {existingSchedule.length > 0
             ? `Review and update the maintenance intervals for your ${vehicle.year} ${vehicle.make} ${vehicle.model}.`
             : `Setup maintenance intervals for your ${vehicle.year} ${vehicle.make} ${vehicle.model}.`}

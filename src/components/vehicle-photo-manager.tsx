@@ -56,7 +56,7 @@ export function VehiclePhotoManager({ vehicleId, initialPhotos }: Props) {
                 type="button"
                 onClick={() => handleDelete(photo)}
                 disabled={deleting === photo.id}
-                className="absolute -top-1.5 -right-1.5 rounded-full bg-red-500 p-0.5 text-white hover:bg-red-600 disabled:opacity-50"
+                className="absolute -top-1.5 -right-1.5 rounded-full bg-destructive p-0.5 text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
               >
                 <X size={14} />
               </button>
@@ -64,7 +64,7 @@ export function VehiclePhotoManager({ vehicleId, initialPhotos }: Props) {
           ))}
         </div>
       ) : (
-        <p className="mb-4 text-sm text-gray-500">No photos yet.</p>
+        <p className="mb-4 text-sm text-muted-foreground">No photos yet.</p>
       )}
 
       <UploadButton
@@ -88,7 +88,7 @@ export function VehiclePhotoManager({ vehicleId, initialPhotos }: Props) {
           alert(`Upload failed: ${error.message}`);
         }}
       />
-      <p className="mt-1 text-xs text-gray-500">Up to 10 images · 8MB each</p>
+      <p className="mt-1 text-xs text-muted-foreground">Up to 10 images · 8MB each</p>
     </div>
   );
 }

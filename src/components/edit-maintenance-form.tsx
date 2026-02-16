@@ -92,15 +92,15 @@ export function EditMaintenanceForm({
   };
 
   const categoryColors: Record<string, string> = {
-    fluid: "bg-blue-100 text-blue-800",
-    engine_drivetrain: "bg-red-100 text-red-800",
-    consumable: "bg-green-100 text-green-800",
-    inspection: "bg-yellow-100 text-yellow-800",
+    fluid: "bg-primary/10 text-primary",
+    engine_drivetrain: "bg-destructive/10 text-destructive",
+    consumable: "bg-secondary text-secondary-foreground",
+    inspection: "bg-accent/50 text-accent-foreground",
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="rounded-lg border border-gray-300 bg-gray-50 p-4">
+      <div className="rounded-lg border border-input bg-muted/50 p-4">
         <h3 className="mb-2 font-semibold">Quick Presets</h3>
         <div className="flex gap-2">
           <button
@@ -114,7 +114,7 @@ export function EditMaintenanceForm({
               }));
               setItems(conservative);
             }}
-            className="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+            className="rounded bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary/90"
           >
             Make 25% More Conservative
           </button>
@@ -123,7 +123,7 @@ export function EditMaintenanceForm({
             onClick={() =>
               setItems(STI_MAINTENANCE_ITEMS.map((item) => ({ ...item })))
             }
-            className="rounded bg-gray-600 px-4 py-2 text-sm text-white hover:bg-gray-700"
+            className="rounded bg-secondary px-4 py-2 text-sm text-secondary-foreground hover:bg-secondary/80"
           >
             Reset to Factory
           </button>
@@ -134,7 +134,7 @@ export function EditMaintenanceForm({
         {items.map((item, index) => (
           <div
             key={index}
-            className="rounded-lg border border-gray-300 bg-white p-4 shadow-sm"
+            className="rounded-lg border border-input bg-card p-4 shadow-sm"
           >
             <div className="mb-2 flex items-start justify-between">
               <div className="flex-1">
@@ -143,19 +143,19 @@ export function EditMaintenanceForm({
                   <span
                     className={`rounded-full px-2 py-1 text-xs font-semibold ${
                       categoryColors[item.category] ??
-                      "bg-gray-100 text-gray-800"
+                      "bg-muted text-muted-foreground"
                     }`}
                   >
                     {item.category.replace("_", " ")}
                   </span>
                 </div>
-                <p className="mt-1 text-sm text-gray-600">{item.description}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{item.description}</p>
               </div>
             </div>
 
             <div className="mt-4 grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-foreground">
                   Interval (Miles)
                 </label>
                 <input
@@ -170,12 +170,12 @@ export function EditMaintenanceForm({
                   }
                   min="0"
                   step="100"
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:outline-none"
+                  className="mt-1 block w-full rounded-md border border-input px-3 py-2 shadow-sm focus:border-ring focus:ring-ring focus:ring-1 focus:outline-none"
                   placeholder="N/A"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-foreground">
                   Interval (Months)
                 </label>
                 <input
@@ -189,7 +189,7 @@ export function EditMaintenanceForm({
                     )
                   }
                   min="0"
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:outline-none"
+                  className="mt-1 block w-full rounded-md border border-input px-3 py-2 shadow-sm focus:border-ring focus:ring-ring focus:ring-1 focus:outline-none"
                   placeholder="N/A"
                 />
               </div>
@@ -198,16 +198,16 @@ export function EditMaintenanceForm({
         ))}
       </div>
 
-      <div className="flex gap-4 border-t border-gray-300 pt-6">
+      <div className="flex gap-4 border-t border-input pt-6">
         <button
           type="submit"
-          className="rounded bg-green-600 px-6 py-3 text-white hover:bg-green-700"
+          className="rounded bg-primary px-6 py-3 text-primary-foreground hover:bg-primary/90"
         >
           {isEditing ? "Update" : "Create"} Maintenance Schedule
         </button>
         <a
           href="/history"
-          className="rounded bg-gray-300 px-6 py-3 text-gray-700 hover:bg-gray-400"
+          className="rounded bg-secondary px-6 py-3 text-foreground hover:bg-secondary/80"
         >
           Cancel
         </a>

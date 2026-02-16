@@ -20,7 +20,7 @@ export function DeleteVehicleButton({ vehicleId, vehicleName }: DeleteVehicleBut
       <input type="hidden" name="vehicleId" value={vehicleId} />
       <button
         type="submit"
-        className="rounded border border-red-300 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50"
+        className="rounded border border-destructive/30 px-3 py-1.5 text-sm text-destructive hover:bg-destructive/10"
       >
         Delete
       </button>

@@ -4,6 +4,7 @@ import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 import { TopNav } from "~/components/top-nav";
 import { SessionProvider } from "next-auth/react";
+import { ThemeProvider } from "~/components/theme-provider";
 
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
@@ -24,13 +25,15 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${geist.variable}`}>
+    <html lang="en" className={`${geist.variable}`} suppressHydrationWarning>
       <body>
-        <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
-        <SessionProvider>
-          <TopNav />
-          {children}
-        </SessionProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem themes={["light", "dark", "sti"]}>
+          <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
+          <SessionProvider>
+            <TopNav />
+            {children}
+          </SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

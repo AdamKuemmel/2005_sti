@@ -31,7 +31,7 @@ export default async function VehiclesPage() {
             <h1 className="text-3xl font-bold">My Garage</h1>
             <Link
               href="/vehicle/add"
-              className="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+              className="rounded bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
             >
               Add Vehicle
             </Link>
@@ -41,7 +41,7 @@ export default async function VehiclesPage() {
             <Empty className="border border-dashed">
               <EmptyHeader>
                 <EmptyMedia variant="icon">
-                  <WrenchIcon className="size-8 text-gray-400" />
+                  <WrenchIcon className="size-8 text-muted-foreground" />
                 </EmptyMedia>
                 <EmptyTitle>Your Garage is Empty</EmptyTitle>
                 <EmptyDescription>
@@ -69,7 +69,7 @@ export default async function VehiclesPage() {
           <Empty className="border border-dashed">
             <EmptyHeader>
               <EmptyMedia variant="icon">
-                <WrenchIcon className="size-8 text-gray-400" />
+                <WrenchIcon className="size-8 text-muted-foreground" />
               </EmptyMedia>
               <EmptyTitle>No Vehicles Found</EmptyTitle>
               <EmptyDescription>
@@ -100,7 +100,7 @@ export default async function VehiclesPage() {
           <Empty className="border border-dashed">
             <EmptyHeader>
               <EmptyMedia variant="icon">
-                <WrenchIcon className="size-8 text-gray-400" />
+                <WrenchIcon className="size-8 text-muted-foreground" />
               </EmptyMedia>
               <EmptyTitle>No Vehicles Found</EmptyTitle>
               <EmptyDescription>

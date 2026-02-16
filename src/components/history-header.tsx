@@ -28,7 +28,7 @@ export function HistoryHeader({ vehicle, isLoggedIn }: HistoryHeaderProps) {
           <h1 className="text-3xl font-bold">
             {vehicle.year} {vehicle.make} {vehicle.model}
           </h1>
-          <p className="mt-2 text-xl text-gray-600">
+          <p className="mt-2 text-xl text-muted-foreground">
             Current Mileage: {vehicle.currentMileage.toLocaleString()} miles
           </p>
         </div>
@@ -47,19 +47,19 @@ export function HistoryHeader({ vehicle, isLoggedIn }: HistoryHeaderProps) {
                   name="currentMileage"
                   defaultValue={vehicle.currentMileage}
                   min={vehicle.currentMileage}
-                  className="w-36 rounded border border-gray-300 px-3 py-2 text-sm"
+                  className="w-36 rounded border border-input px-3 py-2 text-sm"
                   autoFocus
                 />
                 <button
                   type="submit"
-                  className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                  className="rounded bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
                 >
                   Save
                 </button>
                 <button
                   type="button"
                   onClick={() => setEditing(false)}
-                  className="rounded border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
+                  className="rounded border border-input px-4 py-2 text-sm hover:bg-muted/50"
                 >
                   Cancel
                 </button>
@@ -67,20 +67,20 @@ export function HistoryHeader({ vehicle, isLoggedIn }: HistoryHeaderProps) {
             ) : (
               <button
                 onClick={() => setEditing(true)}
-                className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                className="rounded bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
               >
                 Update Mileage
               </button>
             )}
             <Link
               href={`/vehicle/settings?vehicleId=${vehicle.id}`}
-              className="rounded border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
+              className="rounded border border-input px-4 py-2 text-sm hover:bg-muted/50"
             >
               Settings
             </Link>
             <Link
               href={`/vehicle/service/add?vehicleId=${vehicle.id}`}
-              className="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+              className="rounded bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
             >
               Add Service Record
             </Link>

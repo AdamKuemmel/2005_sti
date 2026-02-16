@@ -16,18 +16,18 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
   return (
     <div
-      className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg"
+        className="w-full max-w-md rounded-lg bg-card p-6 shadow-lg"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-900">Sign In</h2>
+          <h2 className="text-xl font-bold text-foreground">Sign In</h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-muted-foreground hover:text-foreground"
           >
             ✕
           </button>
@@ -35,7 +35,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
         <button
           onClick={handleLogin}
-          className="w-full rounded bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
+          className="w-full rounded bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
         >
           Sign in with Discord
         </button>
