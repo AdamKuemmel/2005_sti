@@ -1,8 +1,8 @@
 import { auth } from "~/server/auth";
 import { redirect } from "next/navigation";
-import { getVehicle } from "~/server/actions/vehicles";
-import { updateVehicle } from "~/server/actions/vehicles";
+import { getVehicle, getVehiclePhotos, updateVehicle } from "~/server/actions/vehicles";
 import Link from "next/link";
+import { VehiclePhotoManager } from "~/components/vehicle-photo-manager";
 
 interface PageProps {
   searchParams: Promise<{ vehicleId?: string }>;
@@ -22,6 +22,8 @@ export default async function VehicleSettingsPage({ searchParams }: PageProps) {
   if (!vehicle) {
     redirect("/vehicle");
   }
+
+  const photos = await getVehiclePhotos(vehicle.id);
 
   return (
     <div className="container mx-auto p-8">
@@ -115,6 +117,8 @@ export default async function VehicleSettingsPage({ searchParams }: PageProps) {
             </Link>
           </div>
         </form>
+
+        <VehiclePhotoManager vehicleId={vehicle.id} initialPhotos={photos} />
       </div>
     </div>
   );

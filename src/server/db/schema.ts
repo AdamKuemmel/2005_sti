@@ -161,6 +161,29 @@ export const maintenanceSchedule = createTable(
   ],
 );
 
+// Vehicle photos - covers, glamour shots, etc.
+export const vehiclePhotos = createTable(
+  "vehicle_photo",
+  (d) => ({
+    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+    vehicleId: d
+      .integer()
+      .notNull()
+      .references(() => vehicle.id, { onDelete: "cascade" }),
+
+    fileUrl: d.varchar({ length: 500 }).notNull(),
+    fileKey: d.varchar({ length: 255 }).notNull(), // UploadThing file key (for deletion)
+    description: d.varchar({ length: 255 }),
+    isPrimary: d.boolean().notNull().default(false),
+
+    createdAt: d
+      .timestamp({ withTimezone: true })
+      .$defaultFn(() => new Date())
+      .notNull(),
+  }),
+  (t) => [index("vehicle_photo_vehicle_idx").on(t.vehicleId)],
+);
+
 // Photos and documents
 export const serviceDocuments = createTable(
   "service_document",
@@ -265,6 +288,15 @@ export const vehicleRelations = relations(vehicle, ({ one, many }) => ({
   owner: one(users, { fields: [vehicle.ownerId], references: [users.id] }),
   serviceRecords: many(serviceRecords),
   maintenanceSchedule: many(maintenanceSchedule),
+  photos: many(vehiclePhotos),
+}));
+
+// Vehicle photo relations
+export const vehiclePhotosRelations = relations(vehiclePhotos, ({ one }) => ({
+  vehicle: one(vehicle, {
+    fields: [vehiclePhotos.vehicleId],
+    references: [vehicle.id],
+  }),
 }));
 
 // Service record relations

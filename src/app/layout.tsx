@@ -7,6 +7,9 @@ import { SessionProvider } from "next-auth/react";
 import { auth } from "~/server/auth";
 import { db } from "~/server/db";
 import { vehicle } from "~/server/db/schema";
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
+import { extractRouterConfig } from "uploadthing/server";
+import { ourFileRouter } from "~/app/api/uploadthing/core";
 
 export const metadata: Metadata = {
   title: "2005 STI Tracker",
@@ -33,8 +36,9 @@ export default async function RootLayout({
   return (
     <html lang="en" className={`${geist.variable}`}>
       <body>
+        <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
         <SessionProvider>
-          <TopNav vehicles={vehicles} isLoggedIn={!!session} />
+          <TopNav />
           {children}
         </SessionProvider>
       </body>
