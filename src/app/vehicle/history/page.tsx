@@ -1,11 +1,11 @@
 import { auth } from "~/server/auth";
 import { getVehicle, getVehiclePhotos, getVehicleOwner } from "~/server/actions/vehicles";
 import { getServiceRecords } from "~/server/actions/service-records";
-import { getUpcomingMaintenance } from "~/server/actions/maintenance";
+import { getFullMaintenanceSchedule } from "~/server/actions/maintenance";
 import { getVehicleInteractions } from "~/server/actions/interactions";
 import { ServiceRecordsList } from "~/components/service-records-list";
 import { HistoryHeader } from "~/components/history-header";
-import { UpcomingMaintenanceTable } from "~/components/upcoming-maintenance-table";
+import { MaintenanceScheduleTable } from "~/components/maintenance-schedule-table";
 import { LikeButton } from "~/components/like-button";
 import { CommentsSection } from "~/components/comments-section";
 import { VehiclePhotoGallery } from "~/components/vehicle-photo-gallery";
@@ -53,7 +53,7 @@ export default async function HistoryPage({ searchParams }: PageProps) {
   const [records, upcomingMaintenance, interactions, photos, owner] = vehicle
     ? await Promise.all([
         getServiceRecords(vehicle.id, params.category),
-        getUpcomingMaintenance(vehicle.id),
+        getFullMaintenanceSchedule(vehicle.id),
         getVehicleInteractions(vehicle.id),
         getVehiclePhotos(vehicle.id),
         getVehicleOwner(vehicle.ownerId),
@@ -165,9 +165,12 @@ export default async function HistoryPage({ searchParams }: PageProps) {
       {/* Upcoming Maintenance */}
       <div className="mb-8">
         <h2 className="mb-4 text-2xl font-bold">Upcoming Maintenance</h2>
-        <UpcomingMaintenanceTable
+        <MaintenanceScheduleTable
           items={upcomingMaintenance}
           currentMileage={vehicle.currentMileage}
+          vehicleId={vehicle.id}
+          isOwner={session?.user?.id === vehicle.ownerId}
+          showAll={false}
         />
       </div>
 
@@ -177,7 +180,7 @@ export default async function HistoryPage({ searchParams }: PageProps) {
         <ServiceRecordsList
           records={records}
           currentCategory={params.category ?? "all"}
-          isLoggedIn={!!session}
+          isOwner={session?.user?.id === vehicle.ownerId}
         />
       </div>
 

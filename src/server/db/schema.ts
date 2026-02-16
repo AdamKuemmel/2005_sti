@@ -195,6 +195,7 @@ export const serviceDocuments = createTable(
       .references(() => serviceRecords.id, { onDelete: "cascade" }),
 
     fileUrl: d.varchar({ length: 500 }).notNull(),
+    fileKey: d.varchar({ length: 255 }), // UploadThing file key — nullable for existing records
     fileType: d.varchar({ length: 50 }).notNull(), // 'photo', 'receipt', 'invoice', 'manual'
     description: d.varchar({ length: 255 }),
 
@@ -204,6 +205,45 @@ export const serviceDocuments = createTable(
       .notNull(),
   }),
   (t) => [index("service_record_idx").on(t.serviceRecordId)],
+);
+
+// Ordered steps within a service record
+export const serviceRecordSteps = createTable(
+  "service_record_step",
+  (d) => ({
+    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+    serviceRecordId: d
+      .integer()
+      .notNull()
+      .references(() => serviceRecords.id, { onDelete: "cascade" }),
+    stepNumber: d.integer().notNull(),
+    title: d.varchar({ length: 255 }).notNull(),
+    description: d.text(),
+    createdAt: d
+      .timestamp({ withTimezone: true })
+      .$defaultFn(() => new Date())
+      .notNull(),
+  }),
+  (t) => [index("step_record_idx").on(t.serviceRecordId)],
+);
+
+// Photos attached to individual service steps
+export const serviceStepPhotos = createTable(
+  "service_step_photo",
+  (d) => ({
+    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+    stepId: d
+      .integer()
+      .notNull()
+      .references(() => serviceRecordSteps.id, { onDelete: "cascade" }),
+    fileUrl: d.varchar({ length: 500 }).notNull(),
+    fileKey: d.varchar({ length: 255 }).notNull(),
+    createdAt: d
+      .timestamp({ withTimezone: true })
+      .$defaultFn(() => new Date())
+      .notNull(),
+  }),
+  (t) => [index("step_photo_step_idx").on(t.stepId)],
 );
 
 // Vehicle likes — one per user per vehicle
@@ -411,6 +451,30 @@ export const serviceRecordsRelations = relations(
       references: [users.id],
     }),
     documents: many(serviceDocuments),
+    steps: many(serviceRecordSteps),
+  }),
+);
+
+// Service record step relations
+export const serviceRecordStepsRelations = relations(
+  serviceRecordSteps,
+  ({ one, many }) => ({
+    serviceRecord: one(serviceRecords, {
+      fields: [serviceRecordSteps.serviceRecordId],
+      references: [serviceRecords.id],
+    }),
+    photos: many(serviceStepPhotos),
+  }),
+);
+
+// Service step photo relations
+export const serviceStepPhotosRelations = relations(
+  serviceStepPhotos,
+  ({ one }) => ({
+    step: one(serviceRecordSteps, {
+      fields: [serviceStepPhotos.stepId],
+      references: [serviceRecordSteps.id],
+    }),
   }),
 );
 

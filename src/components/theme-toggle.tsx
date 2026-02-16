@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Moon, Sun, Gauge } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "~/components/ui/button";
@@ -18,15 +19,17 @@ const themes = [
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const active = themes.find((t) => t.value === theme) ?? themes[0];
-  const ActiveIcon = active.Icon;
+  const ActiveIcon = active!.Icon;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className="my-auto">
         <Button variant="ghost" size="icon" aria-label="Toggle theme">
-          <ActiveIcon className="my-auto h-4 w-4" />
+          {mounted && <ActiveIcon className="my-auto h-4 w-4" />}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

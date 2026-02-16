@@ -1,18 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { addServiceRecord } from "~/server/actions/service-records";
+import { updateServiceRecord } from "~/server/actions/service-records";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import { ChevronsUpDown, Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { UploadButton } from "~/utils/uploadthing";
 
 interface Vehicle {
@@ -21,6 +15,45 @@ interface Vehicle {
   make: string;
   model: string;
   currentMileage: number;
+}
+
+interface StepPhoto {
+  id: number;
+  fileUrl: string;
+  fileKey: string | null;
+}
+
+interface RecordStep {
+  id: number;
+  stepNumber: number;
+  title: string;
+  description: string | null;
+  photos: StepPhoto[];
+}
+
+interface RecordDocument {
+  id: number;
+  fileUrl: string;
+  fileKey: string | null;
+  fileType: string;
+}
+
+interface ServiceRecord {
+  id: number;
+  vehicleId: number;
+  title: string;
+  category: string;
+  serviceDate: string;
+  mileage: number;
+  location: string | null;
+  description: string | null;
+  partsBrand: string | null;
+  partNumber: string | null;
+  laborCost: string | null;
+  partsCost: string | null;
+  notes: string | null;
+  steps: RecordStep[];
+  documents: RecordDocument[];
 }
 
 interface Step {
@@ -36,9 +69,9 @@ interface ServiceDocumentUpload {
   fileType: string;
 }
 
-interface AddServiceFormProps {
+interface EditServiceFormProps {
+  record: ServiceRecord;
   vehicle: Vehicle;
-  vehicles?: Vehicle[];
 }
 
 const SERVICE_TITLES = {
@@ -139,16 +172,36 @@ const LOCATIONS = [
 const selectClassName =
   "border-input dark:bg-input/30 flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-base shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm";
 
-export function AddServiceForm({ vehicle, vehicles = [] }: AddServiceFormProps) {
-  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle>(vehicle);
-  const [category, setCategory] = useState<string>("fluid");
-  const [customTitle, setCustomTitle] = useState(false);
-  const [customBrand, setCustomBrand] = useState(false);
-  const [mileageValue, setMileageValue] = useState(vehicle.currentMileage);
-  const [steps, setSteps] = useState<Step[]>([]);
-  const [documents, setDocuments] = useState<ServiceDocumentUpload[]>([]);
+export function EditServiceForm({ record, vehicle }: EditServiceFormProps) {
+  const [category, setCategory] = useState(record.category);
+  const [customTitle, setCustomTitle] = useState(true);
+  const [customBrand, setCustomBrand] = useState(true);
+  const [mileageValue, setMileageValue] = useState(record.mileage);
+  const [steps, setSteps] = useState<Step[]>(
+    record.steps.map((s) => ({
+      id: crypto.randomUUID(),
+      title: s.title,
+      description: s.description ?? "",
+      photos: s.photos.map((p) => ({
+        fileUrl: p.fileUrl,
+        fileKey: p.fileKey ?? "",
+      })),
+    })),
+  );
+  const [documents, setDocuments] = useState<ServiceDocumentUpload[]>(
+    record.documents.map((d) => ({
+      fileUrl: d.fileUrl,
+      fileKey: d.fileKey ?? "",
+      fileType: d.fileType,
+    })),
+  );
 
-  const mileageDelta = mileageValue - selectedVehicle.currentMileage;
+  const mileageDelta = mileageValue - vehicle.currentMileage;
+
+  const titleOptions =
+    SERVICE_TITLES[category as keyof typeof SERVICE_TITLES] ?? [];
+  const brandOptions =
+    PARTS_BRANDS[category as keyof typeof PARTS_BRANDS] ?? ["N/A"];
 
   function addStep() {
     setSteps((prev) => [
@@ -167,11 +220,6 @@ export function AddServiceForm({ vehicle, vehicles = [] }: AddServiceFormProps) 
     );
   }
 
-  const titleOptions =
-    SERVICE_TITLES[category as keyof typeof SERVICE_TITLES] ?? [];
-  const brandOptions =
-    PARTS_BRANDS[category as keyof typeof PARTS_BRANDS] ?? ["N/A"];
-
   const stepsJson = JSON.stringify(
     steps.map((s, i) => ({
       stepNumber: i + 1,
@@ -182,59 +230,14 @@ export function AddServiceForm({ vehicle, vehicles = [] }: AddServiceFormProps) 
   );
 
   return (
-    <form action={addServiceRecord} className="space-y-0">
-      <input type="hidden" name="vehicleId" value={selectedVehicle.id} />
+    <form action={updateServiceRecord} className="space-y-0">
+      <input type="hidden" name="recordId" value={record.id} />
       <input type="hidden" name="stepsJson" value={stepsJson} />
       <input
         type="hidden"
         name="documentsJson"
         value={JSON.stringify(documents)}
       />
-
-      {/* Vehicle Badge */}
-      <div className="mb-8 rounded-md border bg-muted/50 px-4 py-3 text-sm">
-        <div className="flex items-center justify-between gap-2">
-          <div>
-            <span className="text-muted-foreground">
-              Adding service record for{" "}
-            </span>
-            <span className="font-semibold">
-              {selectedVehicle.year} {selectedVehicle.make}{" "}
-              {selectedVehicle.model}
-            </span>
-          </div>
-          {vehicles.length > 1 && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 gap-1 px-2 text-xs"
-                >
-                  Change <ChevronsUpDown className="h-3 w-3" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {vehicles.map((v) => (
-                  <DropdownMenuItem
-                    key={v.id}
-                    onSelect={() => {
-                      setSelectedVehicle(v);
-                      setMileageValue(v.currentMileage);
-                    }}
-                    className={
-                      v.id === selectedVehicle.id ? "font-semibold" : ""
-                    }
-                  >
-                    {v.year} {v.make} {v.model}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </div>
-      </div>
 
       {/* ——— SECTION 1: SERVICE DETAILS ——— */}
       <SectionHeader number={1} title="Service Details" />
@@ -249,8 +252,6 @@ export function AddServiceForm({ vehicle, vehicles = [] }: AddServiceFormProps) 
             value={category}
             onChange={(e) => {
               setCategory(e.target.value);
-              setCustomTitle(false);
-              setCustomBrand(false);
             }}
             className={selectClassName}
           >
@@ -271,12 +272,13 @@ export function AddServiceForm({ vehicle, vehicles = [] }: AddServiceFormProps) 
                 id="title"
                 name="title"
                 required
+                defaultValue={record.title}
                 className={selectClassName}
               >
                 <option value="">Select a service...</option>
-                {titleOptions.map((title) => (
-                  <option key={title} value={title}>
-                    {title}
+                {titleOptions.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
                   </option>
                 ))}
               </select>
@@ -295,7 +297,8 @@ export function AddServiceForm({ vehicle, vehicles = [] }: AddServiceFormProps) 
                 id="title"
                 name="title"
                 required
-                placeholder="Enter custom service name"
+                defaultValue={record.title}
+                placeholder="Enter service name"
               />
               <Button
                 type="button"
@@ -316,6 +319,7 @@ export function AddServiceForm({ vehicle, vehicles = [] }: AddServiceFormProps) 
             id="serviceDate"
             name="serviceDate"
             required
+            defaultValue={record.serviceDate}
             max={new Date().toISOString().split("T")[0]}
           />
         </div>
@@ -333,7 +337,7 @@ export function AddServiceForm({ vehicle, vehicles = [] }: AddServiceFormProps) 
             onChange={(e) => setMileageValue(parseInt(e.target.value) || 0)}
           />
           <p className="text-sm text-muted-foreground">
-            Last recorded: {selectedVehicle.currentMileage.toLocaleString()} mi
+            Last recorded: {vehicle.currentMileage.toLocaleString()} mi
             {mileageDelta !== 0 && (
               <span
                 className={
@@ -352,7 +356,12 @@ export function AddServiceForm({ vehicle, vehicles = [] }: AddServiceFormProps) 
         {/* Location */}
         <div className="space-y-1.5">
           <Label htmlFor="location">Location</Label>
-          <select id="location" name="location" className={selectClassName}>
+          <select
+            id="location"
+            name="location"
+            defaultValue={record.location ?? ""}
+            className={selectClassName}
+          >
             <option value="">Select location...</option>
             {LOCATIONS.map((loc) => (
               <option key={loc} value={loc}>
@@ -375,6 +384,7 @@ export function AddServiceForm({ vehicle, vehicles = [] }: AddServiceFormProps) 
               <select
                 id="partsBrand"
                 name="partsBrand"
+                defaultValue={record.partsBrand ?? ""}
                 className={selectClassName}
               >
                 <option value="">Select brand...</option>
@@ -398,7 +408,8 @@ export function AddServiceForm({ vehicle, vehicles = [] }: AddServiceFormProps) 
                 type="text"
                 id="partsBrand"
                 name="partsBrand"
-                placeholder="Enter custom brand"
+                defaultValue={record.partsBrand ?? ""}
+                placeholder="Enter brand"
               />
               <Button
                 type="button"
@@ -418,6 +429,7 @@ export function AddServiceForm({ vehicle, vehicles = [] }: AddServiceFormProps) 
             type="text"
             id="partNumber"
             name="partNumber"
+            defaultValue={record.partNumber ?? ""}
             placeholder="e.g., 15208AA15A"
           />
         </div>
@@ -432,6 +444,7 @@ export function AddServiceForm({ vehicle, vehicles = [] }: AddServiceFormProps) 
               name="partsCost"
               step="0.01"
               min="0"
+              defaultValue={record.partsCost ?? ""}
               placeholder="0.00"
             />
           </div>
@@ -443,6 +456,7 @@ export function AddServiceForm({ vehicle, vehicles = [] }: AddServiceFormProps) 
               name="laborCost"
               step="0.01"
               min="0"
+              defaultValue={record.laborCost ?? ""}
               placeholder="0.00"
             />
           </div>
@@ -492,7 +506,6 @@ export function AddServiceForm({ vehicle, vehicles = [] }: AddServiceFormProps) 
                 placeholder="Details about this step..."
               />
             </div>
-            {/* Step Photos */}
             <div className="space-y-1.5">
               <Label>Photos</Label>
               {step.photos.length > 0 && (
@@ -607,6 +620,7 @@ export function AddServiceForm({ vehicle, vehicles = [] }: AddServiceFormProps) 
             id="description"
             name="description"
             rows={3}
+            defaultValue={record.description ?? ""}
             placeholder="Brief description of the service performed..."
           />
         </div>
@@ -616,6 +630,7 @@ export function AddServiceForm({ vehicle, vehicles = [] }: AddServiceFormProps) 
             id="notes"
             name="notes"
             rows={4}
+            defaultValue={record.notes ?? ""}
             placeholder="Any additional observations, issues found, recommendations, etc..."
           />
         </div>
@@ -623,9 +638,9 @@ export function AddServiceForm({ vehicle, vehicles = [] }: AddServiceFormProps) 
 
       {/* Submit */}
       <div className="flex gap-4 pt-2">
-        <Button type="submit">Add Service Record</Button>
+        <Button type="submit">Save Changes</Button>
         <Button variant="secondary" asChild>
-          <a href="/history">Cancel</a>
+          <a href={`/vehicle/history?vehicleId=${record.vehicleId}`}>Cancel</a>
         </Button>
       </div>
     </form>

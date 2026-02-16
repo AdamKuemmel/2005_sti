@@ -3,6 +3,9 @@
 import { db } from "~/server/db";
 import {
   serviceRecords,
+  serviceDocuments,
+  serviceRecordSteps,
+  serviceStepPhotos,
   vehicle,
   maintenanceSchedule,
 } from "~/server/db/schema";
@@ -24,7 +27,9 @@ export async function addServiceRecord(formData: FormData) {
   const [ownedVehicle] = await db
     .select()
     .from(vehicle)
-    .where(and(eq(vehicle.id, vehicleId), eq(vehicle.ownerId, session.user.id)));
+    .where(
+      and(eq(vehicle.id, vehicleId), eq(vehicle.ownerId, session.user.id)),
+    );
 
   if (!ownedVehicle) {
     throw new Error("Unauthorized");
@@ -123,46 +128,260 @@ export async function addServiceRecord(formData: FormData) {
     }
   }
 
-  revalidatePath("/history");
-  redirect("/history");
+  // Insert steps (and their photos)
+  if (record) {
+    const stepsJson = formData.get("stepsJson") as string;
+    if (stepsJson) {
+      const stepsData = JSON.parse(stepsJson) as {
+        stepNumber: number;
+        title: string;
+        description: string;
+        photos: { fileUrl: string; fileKey: string }[];
+      }[];
+
+      for (const stepData of stepsData) {
+        if (!stepData.title.trim()) continue;
+        const [insertedStep] = await db
+          .insert(serviceRecordSteps)
+          .values({
+            serviceRecordId: record.id,
+            stepNumber: stepData.stepNumber,
+            title: stepData.title,
+            description: stepData.description || null,
+          })
+          .returning();
+
+        if (insertedStep && stepData.photos.length > 0) {
+          await db.insert(serviceStepPhotos).values(
+            stepData.photos.map((p) => ({
+              stepId: insertedStep.id,
+              fileUrl: p.fileUrl,
+              fileKey: p.fileKey,
+            })),
+          );
+        }
+      }
+    }
+
+    // Insert service-level documents (receipts, reference photos)
+    const documentsJson = formData.get("documentsJson") as string;
+    if (documentsJson) {
+      const docsData = JSON.parse(documentsJson) as {
+        fileUrl: string;
+        fileKey: string;
+        fileType: string;
+      }[];
+
+      if (docsData.length > 0) {
+        await db.insert(serviceDocuments).values(
+          docsData.map((d) => ({
+            serviceRecordId: record.id,
+            fileUrl: d.fileUrl,
+            fileKey: d.fileKey ?? null,
+            fileType: d.fileType,
+          })),
+        );
+      }
+    }
+  }
+
+  revalidatePath("/vehicle/history?vehicleId=" + vehicleId);
+  redirect("/vehicle/history?vehicleId=" + vehicleId);
+}
+
+export async function updateServiceRecord(formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  const recordId = parseInt(formData.get("recordId") as string);
+
+  const [existing] = await db
+    .select()
+    .from(serviceRecords)
+    .where(
+      and(
+        eq(serviceRecords.id, recordId),
+        eq(serviceRecords.createdById, session.user.id),
+      ),
+    );
+
+  if (!existing) throw new Error("Record not found or unauthorized");
+
+  const title = formData.get("title") as string;
+  const category = formData.get("category") as string;
+  const serviceDate = formData.get("serviceDate") as string;
+  const mileage = parseInt(formData.get("mileage") as string);
+  const location = (formData.get("location") as string) || null;
+  const description = (formData.get("description") as string) || null;
+  const partsBrand = (formData.get("partsBrand") as string) || null;
+  const partNumber = (formData.get("partNumber") as string) || null;
+  const laborCost = (formData.get("laborCost") as string) || null;
+  const partsCost = (formData.get("partsCost") as string) || null;
+  const notes = (formData.get("notes") as string) || null;
+
+  const labor = laborCost ? parseFloat(laborCost) : 0;
+  const parts = partsCost ? parseFloat(partsCost) : 0;
+  const totalCost = labor + parts;
+
+  await db
+    .update(serviceRecords)
+    .set({
+      title,
+      category,
+      serviceDate,
+      mileage,
+      location,
+      description,
+      partsBrand,
+      partNumber,
+      laborCost,
+      partsCost,
+      totalCost: totalCost > 0 ? totalCost.toString() : null,
+      notes,
+    })
+    .where(eq(serviceRecords.id, recordId));
+
+  // Update vehicle mileage if higher
+  const [currentVehicle] = await db
+    .select()
+    .from(vehicle)
+    .where(eq(vehicle.id, existing.vehicleId));
+
+  if (currentVehicle && mileage > currentVehicle.currentMileage) {
+    await db
+      .update(vehicle)
+      .set({ currentMileage: mileage, lastMileageUpdate: new Date() })
+      .where(eq(vehicle.id, existing.vehicleId));
+  }
+
+  // Replace steps: delete all existing, re-insert from form
+  await db
+    .delete(serviceRecordSteps)
+    .where(eq(serviceRecordSteps.serviceRecordId, recordId));
+
+  const stepsJson = formData.get("stepsJson") as string;
+  if (stepsJson) {
+    const stepsData = JSON.parse(stepsJson) as {
+      stepNumber: number;
+      title: string;
+      description: string;
+      photos: { fileUrl: string; fileKey: string }[];
+    }[];
+
+    for (const stepData of stepsData) {
+      if (!stepData.title.trim()) continue;
+      const [insertedStep] = await db
+        .insert(serviceRecordSteps)
+        .values({
+          serviceRecordId: recordId,
+          stepNumber: stepData.stepNumber,
+          title: stepData.title,
+          description: stepData.description || null,
+        })
+        .returning();
+
+      if (insertedStep && stepData.photos.length > 0) {
+        await db.insert(serviceStepPhotos).values(
+          stepData.photos.map((p) => ({
+            stepId: insertedStep.id,
+            fileUrl: p.fileUrl,
+            fileKey: p.fileKey,
+          })),
+        );
+      }
+    }
+  }
+
+  // Replace documents: delete all existing, re-insert from form
+  await db
+    .delete(serviceDocuments)
+    .where(eq(serviceDocuments.serviceRecordId, recordId));
+
+  const documentsJson = formData.get("documentsJson") as string;
+  if (documentsJson) {
+    const docsData = JSON.parse(documentsJson) as {
+      fileUrl: string;
+      fileKey: string | null;
+      fileType: string;
+    }[];
+
+    if (docsData.length > 0) {
+      await db.insert(serviceDocuments).values(
+        docsData.map((d) => ({
+          serviceRecordId: recordId,
+          fileUrl: d.fileUrl,
+          fileKey: d.fileKey ?? null,
+          fileType: d.fileType,
+        })),
+      );
+    }
+  }
+
+  revalidatePath("/vehicle/history");
+  revalidatePath("/vehicle/edit");
+  redirect(`/vehicle/history?vehicleId=${existing.vehicleId}`);
 }
 
 export async function getServiceRecords(vehicleId?: number, category?: string) {
   // Specific vehicle ID: public, anyone can view
   if (vehicleId) {
-    const conditions = [eq(serviceRecords.vehicleId, vehicleId)];
-
-    if (category && category !== "all") {
-      conditions.push(eq(serviceRecords.category, category));
-    }
-
-    return await db
-      .select()
-      .from(serviceRecords)
-      .where(and(...conditions))
-      .orderBy(desc(serviceRecords.serviceDate));
+    return db.query.serviceRecords.findMany({
+      where: (sr, { eq, and }) =>
+        category && category !== "all"
+          ? and(eq(sr.vehicleId, vehicleId), eq(sr.category, category))
+          : eq(sr.vehicleId, vehicleId),
+      with: {
+        steps: {
+          orderBy: (s, { asc }) => [asc(s.stepNumber)],
+          with: { photos: true },
+        },
+        documents: true,
+      },
+      orderBy: (sr, { desc }) => [desc(sr.serviceDate)],
+    });
   }
 
   // No vehicle ID: scope to current user's vehicles
   const session = await auth();
   if (!session?.user?.id) return [];
 
-  const ownedVehicleIds = db
+  const ownedVehicles = await db
     .select({ id: vehicle.id })
     .from(vehicle)
     .where(eq(vehicle.ownerId, session.user.id));
 
-  const conditions = [inArray(serviceRecords.vehicleId, ownedVehicleIds)];
+  const vehicleIds = ownedVehicles.map((v) => v.id);
+  if (vehicleIds.length === 0) return [];
 
-  if (category && category !== "all") {
-    conditions.push(eq(serviceRecords.category, category));
-  }
+  return db.query.serviceRecords.findMany({
+    where: (sr, { inArray, eq, and }) => {
+      const base = inArray(sr.vehicleId, vehicleIds);
+      return category && category !== "all"
+        ? and(base, eq(sr.category, category))
+        : base;
+    },
+    with: {
+      steps: {
+        orderBy: (s, { asc }) => [asc(s.stepNumber)],
+        with: { photos: true },
+      },
+      documents: true,
+    },
+    orderBy: (sr, { desc }) => [desc(sr.serviceDate)],
+  });
+}
 
-  return await db
-    .select()
-    .from(serviceRecords)
-    .where(and(...conditions))
-    .orderBy(desc(serviceRecords.serviceDate));
+export async function getServiceRecord(recordId: number) {
+  return db.query.serviceRecords.findFirst({
+    where: (sr, { eq }) => eq(sr.id, recordId),
+    with: {
+      steps: {
+        orderBy: (s, { asc }) => [asc(s.stepNumber)],
+        with: { photos: true },
+      },
+      documents: true,
+    },
+  });
 }
 
 export async function searchServiceRecords(_searchTerm: string) {
@@ -186,7 +405,12 @@ export async function deleteServiceRecord(formData: FormData) {
   const [ownedVehicle] = await db
     .select()
     .from(vehicle)
-    .where(and(eq(vehicle.id, record.vehicleId), eq(vehicle.ownerId, session.user.id)));
+    .where(
+      and(
+        eq(vehicle.id, record.vehicleId),
+        eq(vehicle.ownerId, session.user.id),
+      ),
+    );
 
   if (!ownedVehicle) throw new Error("Unauthorized");
 
