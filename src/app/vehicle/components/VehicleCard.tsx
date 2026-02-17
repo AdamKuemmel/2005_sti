@@ -12,6 +12,7 @@ import {
 } from "~/components/ui/card";
 import { getVehicleInteractions } from "~/server/actions/interactions";
 import { auth } from "~/server/auth";
+import { cn } from "~/lib/utils";
 import type { vehicle, vehiclePhotos } from "~/server/db/schema";
 
 type Vehicle = typeof vehicle.$inferSelect;
@@ -21,9 +22,11 @@ type VehicleWithPhotos = Vehicle & { photos: VehiclePhoto[] };
 export default async function VehicleCard({
   vehicle,
   isOwner = false,
+  healthStatus,
 }: {
   vehicle: VehicleWithPhotos;
   isOwner?: boolean;
+  healthStatus?: "overdue" | "due-soon";
 }) {
   const session = await auth();
   const interactions = await getVehicleInteractions(vehicle.id);
@@ -46,6 +49,19 @@ export default async function VehicleCard({
           className="object-cover transition-transform duration-300 group-hover:scale-105"
         />
         <div className="absolute inset-0 z-10 bg-black/30" />
+        {healthStatus && (
+          <div className="absolute right-2 top-2 z-20">
+            <span
+              className={cn(
+                "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold text-white",
+                healthStatus === "overdue" ? "bg-destructive/90" : "bg-amber-500/90",
+              )}
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-white" />
+              {healthStatus === "overdue" ? "Overdue" : "Due Soon"}
+            </span>
+          </div>
+        )}
       </div>
       <CardHeader>
         <CardTitle>{title}</CardTitle>

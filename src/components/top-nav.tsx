@@ -89,18 +89,18 @@ export function TopNav(_props: TopNavProps) {
           </nav> */}
 
           {/* Desktop auth */}
-          <div className="my-auto items-center gap-3 max-md:hidden">
+          <div className="flex items-center gap-1 max-md:hidden!">
             <ThemeToggle />
             <NotificationBell />
             {session ? (
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+                <DropdownMenuTrigger asChild className="my-auto">
                   <Button
                     variant="ghost"
-                    className="my-auto h-9 w-9 rounded-full p-0"
+                    className="my-auto h-9 w-9 items-center rounded p-0"
                     aria-label="User menu"
                   >
-                    <Avatar className="h-9 w-9">
+                    <Avatar className="my-auto h-9 w-9">
                       <AvatarImage
                         src={session.user?.image ?? undefined}
                         alt="User avatar"
@@ -209,8 +209,18 @@ export function TopNav(_props: TopNavProps) {
                         </div>
                       </div>
 
-                      <Button variant="outline" size="sm" className="w-full">
-                        <WrenchIcon className="size-4" /> Garage
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        asChild
+                      >
+                        <Link
+                          href="/vehicle"
+                          onClick={() => setMobileOpen(false)}
+                        >
+                          <WrenchIcon className="size-4" /> Garage
+                        </Link>
                       </Button>
 
                       <Button
